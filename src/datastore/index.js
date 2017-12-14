@@ -6,6 +6,7 @@ const store = createStore({
   path: null,
   laggedPath: null,
   laggedCurrentUser: null,
+  isFileUploaderOpen: false
 });
 
 const actions = store => rawActions;

@@ -7,15 +7,15 @@ import Match from 'preact-router/match';
 
 // Quiver
 import FirebaseAuthentication from '@quiver/firebase-authentication';
+import StorageUploader from "@quiver/storage-uploader";
 
 // Dependencies
 import Nav from './components/nav/nav.component';
 import Drawer from './components/drawer/drawer.component';
 import Guard from './components/guard/guard.component';
 
-// Preact Material Components
-import Toolbar from 'preact-material-components/Toolbar';
-import 'preact-material-components/Toolbar/style.css';
+// Views
+import { HomeView } from './components/views';
 
 export default class Fogo extends Component {
   get auth() {
@@ -37,8 +37,9 @@ export default class Fogo extends Component {
           <div class="full-height router-wrapper">
             <Router>
               <FirebaseAuthentication google path="/login" />
-              <div path="/">Path: /</div>
+              <HomeView path="/"/>
               <div path="/play">Path: /play</div>
+              <StorageUploader path="/upload" />
               <div default>404</div>
             </Router>
           </div>
