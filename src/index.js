@@ -7,7 +7,7 @@ import Match from 'preact-router/match';
 
 // Quiver
 import FirebaseAuthentication from '@quiver/firebase-authentication';
-import StorageUploader from "@quiver/storage-uploader";
+import StorageUploader from '@quiver/storage-uploader';
 
 // Dependencies
 import Nav from './components/nav/nav.component';
@@ -27,6 +27,8 @@ export default class Fogo extends Component {
   }
 
   render() {
+    const { environment } = store.getState();
+
     return (
       <Provider store={store}>
         <div>
@@ -37,9 +39,13 @@ export default class Fogo extends Component {
           <div class="full-height router-wrapper">
             <Router>
               <FirebaseAuthentication google path="/login" />
-              <HomeView path="/"/>
+              <HomeView path="/" />
               <div path="/play">Path: /play</div>
-              <StorageUploader path="/upload" />
+              <StorageUploader
+                path="/upload"
+                mime-types="image/jpeg,image/gif,image/png"
+                folder={environment.storage.path}
+              />
               <div default>404</div>
             </Router>
           </div>

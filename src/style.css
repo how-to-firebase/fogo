@@ -32,6 +32,23 @@ h1 {
 	align-items: center;
 }
 
+.storage-uploader {
+  max-width: 43rem;
+}
+
+.storage-uploader .buttons {
+  margin-bottom: 3rem;
+}
+
+.storage-uploader .mdc-grid-list {
+  --mdc-theme-primary: rgba(0, 0, 0, .8);
+  --mdc-grid-list-tile-width: 20rem;
+}
+
+.storage-uploader .mdc-grid-tile__primary-content {
+  height: 156px !important;
+}
+
 /* fallback */
 @font-face {
   font-family: 'Material Icons';
