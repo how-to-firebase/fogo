@@ -1,0 +1,32 @@
+{
+  "data": {
+    "bucket": "quiver-four.appspot.com",
+    "contentDisposition": "inline; filename*=utf-8''gif.gif",
+    "contentType": "image/gif",
+    "crc32c": "LdwUxw==",
+    "etag": "CJTcx9ycjNgCEAE=",
+    "generation": "1513348026986004",
+    "id": "quiver-four.appspot.com/development/uploads/gif.gif/1513348026986004",
+    "kind": "storage#object",
+    "md5Hash": "NzNkZWI0ZTM2MjU0MmZlNjM0NWU4ZDc1Mjg5MGI4MjI=",
+    "mediaLink":
+      "https://www.googleapis.com/download/storage/v1/b/quiver-four.appspot.com/o/development%2Fuploads%2Fgif.gif?generation=1513348026986004&alt=media",
+    "metadata": { "firebaseStorageDownloadTokens": "3a199f49-0f02-4d17-a3e4-43a50747d833" },
+    "metageneration": "1",
+    "name": "development/uploads/gif.gif",
+    "resourceState": "exists",
+    "selfLink":
+      "https://www.googleapis.com/storage/v1/b/quiver-four.appspot.com/o/development%2Fuploads%2Fgif.gif",
+    "size": "501962",
+    "storageClass": "STANDARD",
+    "timeCreated": "2017-12-15T14:27:06.655Z",
+    "timeStorageClassUpdated": "2017-12-15T14:27:06.655Z",
+    "updated": "2017-12-15T14:27:06.655Z"
+  },
+  "eventId": "10602881481377",
+  "eventType": "providers/cloud.storage/eventTypes/object.change",
+  "resource":
+    "projects/_/buckets/quiver-four.appspot.com/objects/development/uploads/gif.gif#1513348026986004",
+  "timestamp": "2017-12-15T14:27:07.203Z",
+  "params": {}
+}

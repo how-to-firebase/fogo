@@ -1,0 +1,13 @@
+{
+  "firebase": {
+    "databaseURL": "https://quiver-four.firebaseio.com",
+    "storageBucket": "quiver-four.appspot.com",
+    "apiKey": "AIzaSyCiyt68i2P4igKuDJk3WQDPEzT74FCyBxA",
+    "authDomain": "quiver-four.firebaseapp.com",
+    "projectId": "quiver-four",
+    "serviceAccount": "./service-account.json"
+  },
+  "collections": {
+    "uploads": "uploads"
+  }
+}

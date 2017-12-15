@@ -7,6 +7,8 @@
     "build": "preact build --template template.html --no-prerender",
     "serve": "preact build --template template.html --no-prerender && preact serve",
     "dev": "preact watch --template template.html",
+    "test": "cd functions && NODE_ENV=test jest",
+    "test:watch": "cd functions && NODE_ENV=test jest --watch",
     "lint": "eslint src"
   },
   "eslintConfig": {
@@ -19,6 +21,7 @@
     "eslint": "^4.5.0",
     "eslint-config-synacor": "^1.1.0",
     "if-env": "^1.0.0",
+    "jest": "^21.2.1",
     "preact-cli": "^2.0.0"
   },
   "dependencies": {
