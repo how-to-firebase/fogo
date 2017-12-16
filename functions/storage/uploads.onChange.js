@@ -13,7 +13,7 @@ module.exports = ({ environment }) => event => {
       .firestore()
       .collection(uploads)
       .doc(md5Hash);
-    const payload = { ...event.data, ...environment.env };
-    return doc.set({ ...event.data, ...environment.env }).then(() => payload);
+    const payload = Object.assign(event.data, environment.env);
+    return doc.set(payload).then(() => payload);
   }
 };

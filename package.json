@@ -7,8 +7,14 @@
     "build": "preact build --template template.html --no-prerender",
     "serve": "preact build --template template.html --no-prerender && preact serve",
     "dev": "preact watch --template template.html",
-    "test": "cd functions && NODE_ENV=test jest",
-    "test:watch": "cd functions && NODE_ENV=test jest --watch",
+    "test": "NODE_ENV=test jest",
+    "test:watch": "NODE_ENV=test jest --watch",
+    "deploy": "firebase deploy",
+    "deploy:database": "firebase deploy --only database",
+    "deploy:firestore": "firebase deploy --only firestore",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:storage": "firebase deploy --only storage",
     "lint": "eslint src"
   },
   "eslintConfig": {
@@ -32,5 +38,8 @@
     "preact-router": "^2.6.0",
     "sass-loader": "^6.0.6",
     "unistore": "^2.4.0"
+  },
+  "jest": {
+    "roots": ["src"]
   }
 }

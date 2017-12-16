@@ -6,11 +6,18 @@
     "shell": "firebase experimental:functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "test": "NODE_ENV=test jest",
+    "test:watch": "NODE_ENV=test jest --watch",
+    "version": "node --version"
   },
   "dependencies": {
+    "@quiver/firebase-utilities": "^0.0.2",
     "firebase-admin": "~5.4.2",
     "firebase-functions": "^0.7.1"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "jest": "^21.2.1"
+  }
 }
