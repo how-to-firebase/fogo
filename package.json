@@ -31,6 +31,8 @@
     "preact-cli": "^2.0.0"
   },
   "dependencies": {
+    "@quiver/firebase-authentication": "^0.0.1",
+    "@quiver/storage-uploader": "^0.0.1",
     "node-sass": "^4.7.2",
     "preact": "^8.2.1",
     "preact-compat": "^3.17.0",
@@ -40,6 +42,12 @@
     "unistore": "^2.4.0"
   },
   "jest": {
-    "roots": ["src"]
-  }
+    "roots": [
+      "src"
+    ]
+  },
+  "workspaces": [
+    "../../quiver/packages"
+  ],
+  "private": true
 }

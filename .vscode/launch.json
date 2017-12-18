@@ -10,13 +10,13 @@
       "name": "Jest Functions",
       "program": "${workspaceFolder}/node_modules/jest-cli/bin/jest",
       "cwd": "${workspaceFolder}/functions",
-      "args": [
-        "--runInBand"
-      ],
+      "args": ["--runInBand"],
       "env": {
         "NODE_ENV": "test"
       },
-      "internalConsoleOptions": "openOnSessionStart"
+      "internalConsoleOptions": "openOnSessionStart",
+      // "runtimeExecutable": "node6",
+      "useWSL": true
     },
     {
       "type": "node",
