@@ -9,9 +9,9 @@ module.exports = ({ environment }) => (req, res) => {
   if (error) {
     return handleError(res, 500, error);
   } else {
-    const { md5Hash, width } = req.query;
+    const { record, width } = req.query;
     const { admin, uploads } = getEnvironmentDependencies(environment);
-    const doc = getDoc(admin, uploads, md5Hash);
+    const doc = getDoc(admin, uploads, record);
 
     return doc
       .get()
@@ -28,9 +28,9 @@ module.exports = ({ environment }) => (req, res) => {
           );
         }
       })
-      .then(url => {
-        request(url).pipe(res);
-        return url;
+      .then(version => {
+        request(version.url).pipe(res);
+        return version;
       });
   }
 };
@@ -59,11 +59,11 @@ function getEnvironmentDependencies(environment) {
   return { admin, uploads };
 }
 
-function getDoc(admin, uploads, md5Hash) {
+function getDoc(admin, uploads, record) {
   return admin
     .firestore()
     .collection(uploads)
-    .doc(md5Hash);
+    .doc(record);
 }
 
 function getVersion(doc) {
@@ -86,8 +86,8 @@ function createNewVersion(admin, doc, width) {
         return convertFile(admin, file, width);
       }
     })
-    .then(file => getSignedUrl(file))
-    .then(url => saveDoc(doc, versionName, url));
+    .then(file => getSignedUrl(file).then(url => ({url, name: file.name})))
+    .then(version => saveDoc(doc, versionName, version));
 }
 
 function getVersionName(width) {
@@ -162,11 +162,11 @@ function getSignedUrl(file) {
     .then(([url]) => url);
 }
 
-function saveDoc(doc, versionName, url) {
+function saveDoc(doc, versionName, version) {
   let { versions } = doc.data();
   if (!versions) {
     versions = {};
   }
-  versions[versionName] = url;
-  return doc.ref.update({ versions }).then(() => url);
+  versions[versionName] = version;
+  return doc.ref.update({ versions }).then(() => version);
 }

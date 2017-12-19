@@ -36,7 +36,7 @@ describe('uploadsOnChange', () => {
 
   it('should process an upload', done => {
     const name = 'some-env/uploads/test.gif';
-    fn({ data: { name } }).then(result => {
+    fn({ data: { name, resourceState: 'exists' } }).then(result => {
       expect(result.name).toEqual(name);
       expect(result.isTest).toEqual(true);
       done();

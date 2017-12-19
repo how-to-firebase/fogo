@@ -2,10 +2,11 @@ const httpMocks = require('node-mocks-http');
 const imageOnRequest = require('./image.onRequest');
 const environment = require('../utils').environmentUtil();
 const { adminUtil, collectionsUtil } = require('../utils');
-const FieldValue = require('firebase-admin').firestore.FieldValue;
 
 describe('Image onRequest', () => {
   const md5Hash = 'MjQyNjY5M2NiNTYxM2M4MTkwZmY0YjNmZDdjM2E3NzI=';
+  const record = `test-${md5Hash}`;
+  const recordData = require(`../../data/${record}.json`);
 
   let fn;
   beforeEach(() => {
@@ -20,18 +21,20 @@ describe('Image onRequest', () => {
   });
 
   let doc;
-  beforeAll(() => {
+  beforeAll(done => {
     const admin = adminUtil(environment);
     const uploads = collectionsUtil(environment).get('uploads');
 
     doc = admin
       .firestore()
       .collection(uploads)
-      .doc(md5Hash);
+      .doc(record);
+
+    doc.set(recordData).then(() => done(), done.fail);
   });
 
   it('should return a 404', done => {
-    req.query = { md5Hash: 'not a valid hash', width: 100 };
+    req.query = { record: 'not a valid record', width: 100 };
     fn(req, res)
       .then(done.fail)
       .catch(error => {
@@ -51,25 +54,21 @@ describe('Image onRequest', () => {
   });
 
   describe('Versions', () => {
-    beforeAll(done => {
-      doc.update({ versions: FieldValue.delete() }).then(() => done(), done.fail);
-    });
-
     it('should pipe an original file', done => {
-      req.query = { md5Hash: md5Hash };
-      fn(req, res).then(url => {
-        expect(typeof url).toEqual('string');
+      req.query = { record, environment: 'test' };
+      fn(req, res).then(version => {
+        expect(typeof version.url).toEqual('string');
         expect(res.statusCode).toEqual(200);
         done();
       });
     });
 
     it('should resize an image', done => {
-      req.query = { md5Hash: md5Hash, width: 100 };
+      req.query = { record, environment: 'test', width: 100 };
       fn(req, res)
-        .then(url => {
+        .then(version => {
           expect(res.statusCode).toEqual(200);
-          expect(typeof url).toEqual('string');
+          expect(typeof version.url).toEqual('string');
           done();
         })
         .catch(done.fail);

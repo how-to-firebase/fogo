@@ -1,12 +1,12 @@
+const { adminUtil } = require('../utils');
+
 module.exports = ({ environment }) => event => {
-  const { md5Hash, name } = event.data;
+  const { admin } = adminUtil(environment);
+  const { md5Hash, name, resourceState } = event.data;
   const path = name.split('/');
   const filename = path.pop();
 
-  console.log('TODO: Remove files that have been deleted. Remove all converted versions as well.');
-  console.log('event', event);
-
-  if (!path.includes('uploads')) {
+  if (path.includes('test') || !path.includes('uploads')) {
     return Promise.resolve({ skipped: true });
   } else {
     const { adminUtil, collectionsUtil } = require('../utils');
@@ -16,7 +16,26 @@ module.exports = ({ environment }) => event => {
       .firestore()
       .collection(uploads)
       .doc(md5Hash);
-    const payload = Object.assign(event.data, environment.env);
-    return doc.set(payload).then(() => payload);
+
+    if (resourceState == 'exists') {
+      const payload = Object.assign(event.data, environment.env);
+      return doc.set(payload).then(() => payload);
+    } else if (resourceState == 'not_exists') {
+      return doc
+        .get()
+        .then(doc => {
+          const { versions } = doc.data();
+          return Promise.all(
+            versions.map(({ name }) => {
+              return admin
+                .storage()
+                .bucket()
+                .file(name)
+                .delete();
+            })
+          );
+        })
+        .then(() => doc.delete());
+    }
   }
 };

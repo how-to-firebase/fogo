@@ -14,9 +14,13 @@
   "dependencies": {
     "@google-cloud/storage": "^1.5.1",
     "@quiver/firebase-utilities": "^0.0.2",
+    "child_process": "^1.0.2",
     "fast-crc32c": "^1.0.4",
     "firebase-admin": "~5.4.2",
-    "firebase-functions": "^0.7.1"
+    "firebase-functions": "^0.7.1",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "request": "^2.83.0"
   },
   "private": true,
   "devDependencies": {

@@ -1,0 +1,24 @@
+{
+  "etag": "CNGWnJHOk9gCEAE=",
+  "resourceState": "exists",
+  "timeCreated": "2017-12-18T12:56:48.889Z",
+  "timeStorageClassUpdated": "2017-12-18T12:56:48.889Z",
+  "name": "test/uploads/jpg.jpg",
+  "metadata": { "firebaseStorageDownloadTokens": "0667faef-d190-412b-80d8-7ac7ebbe25c5" },
+  "metageneration": "1",
+  "bucket": "quiver-four.appspot.com",
+  "id": "quiver-four.appspot.com/test/uploads/jpg.jpg/1513601808927569",
+  "size": "5733",
+  "storageClass": "STANDARD",
+  "contentType": "image/jpeg",
+  "md5Hash": "MjQyNjY5M2NiNTYxM2M4MTkwZmY0YjNmZDdjM2E3NzI=",
+  "crc32c": "apiJtg==",
+  "generation": "1513601808927569",
+  "selfLink":
+    "https://www.googleapis.com/storage/v1/b/quiver-four.appspot.com/o/test%2Fuploads%2Fjpg.jpg",
+  "updated": "2017-12-18T12:56:48.889Z",
+  "contentDisposition": "inline; filename*=utf-8''jpg.jpg",
+  "mediaLink": "fakestuff",
+  "kind": "storage#object",
+  "isTest": true
+}
