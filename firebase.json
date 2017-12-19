@@ -17,6 +17,10 @@
       {
         "source": "**",
         "destination": "/index.html"
+      },
+      {
+        "source": "/image",
+        "functions": "image"
       }
     ]
   },

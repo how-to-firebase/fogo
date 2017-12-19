@@ -5,6 +5,8 @@ import { Provider } from 'unistore';
 import { store } from './datastore';
 import Match from 'preact-router/match';
 
+const { route } = Router;
+
 // Quiver
 import FirebaseAuthentication from '@quiver/firebase-authentication';
 import StorageUploader from '@quiver/storage-uploader';
@@ -24,6 +26,23 @@ export default class Fogo extends Component {
 
   componentWillMount() {
     this.registerOnAuthStateChanged();
+  }
+
+  componentDidMount() {
+    this.registerStorageUploaderListeners();
+  }
+
+  registerOnAuthStateChanged() {
+    this.auth.onAuthStateChanged(currentUser => {
+      const { currentUser: laggedCurrentUser } = store.getState();
+      store.setState({ laggedCurrentUser, currentUser });
+    });
+  }
+
+  registerStorageUploaderListeners() {
+    addEventListener('storageUploaderComplete', e => {
+      route('/');
+    });
   }
 
   render() {
@@ -52,13 +71,6 @@ export default class Fogo extends Component {
         </div>
       </Provider>
     );
-  }
-
-  registerOnAuthStateChanged() {
-    this.auth.onAuthStateChanged(currentUser => {
-      const { currentUser: laggedCurrentUser } = store.getState();
-      store.setState({ laggedCurrentUser, currentUser });
-    });
   }
 
   handlePath({ matches, path, url }) {
