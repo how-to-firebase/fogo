@@ -3,6 +3,7 @@ const { adminUtil } = require('../utils');
 module.exports = ({ environment }) => event => {
   const { admin } = adminUtil(environment);
   const { md5Hash, name, resourceState } = event.data;
+  const { nodeEnv } = environment;
   const path = name.split('/');
   const filename = path.pop();
 
@@ -15,7 +16,7 @@ module.exports = ({ environment }) => event => {
     const doc = admin
       .firestore()
       .collection(uploads)
-      .doc(md5Hash);
+      .doc(`${nodeEnv}-${md5Hash}`);
 
     if (resourceState == 'exists') {
       const payload = Object.assign(event.data, environment.env);

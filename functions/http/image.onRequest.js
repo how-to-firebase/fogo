@@ -15,6 +15,7 @@ module.exports = ({ environment }) => (req, res) => {
 
     return doc
       .get()
+      .catch(error => handleError(res, 500, error))
       .then(doc => {
         if (!doc.exists) {
           return handleError(res, 404, 'Not Found');
@@ -29,7 +30,8 @@ module.exports = ({ environment }) => (req, res) => {
         }
       })
       .then(version => {
-        request(version.url).pipe(res);
+        res.status(200);
+        res.send(version.url);
         return version;
       });
   }
@@ -118,7 +120,7 @@ function convertFile(admin, file, width) {
 }
 
 function getLocalFilename(filename) {
-  return path.resolve(__dirname, `../tmp/${path.parse(filename).base}`);
+  return `/tmp/${path.parse(filename).base}`;
 }
 
 function convertLocalFile(localFilename, width) {
