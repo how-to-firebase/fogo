@@ -1,18 +1,159 @@
+const fs = require('fs');
 const path = require('path');
 const request = require('request');
 const { exec } = require('child_process');
+const { adminUtil, collectionsUtil } = require('../utils');
 
-function getError(req, res) {
+module.exports = ({ environment }) => (req, res) => {
+  const error = getError(req, res);
+  if (error) {
+    return handleError(res, 500, error);
+  } else {
+    const { md5Hash, width } = req.query;
+    const { admin, uploads } = getEnvironmentDependencies(environment);
+    const doc = getDoc(admin, uploads, md5Hash);
+
+    return doc
+      .get()
+      .then(doc => {
+        if (!doc.exists) {
+          return handleError(res, 404, 'Not Found');
+        } else {
+          const version = getVersion(doc);
+          const admin = adminUtil(environment);
+
+          return (
+            version ||
+            createNewVersion(admin, doc, width).catch(error => handleError(res, 500, error))
+          );
+        }
+      })
+      .then(url => {
+        request(url).pipe(res);
+        return url;
+      });
+  }
+};
+
+function getError(req) {
   const { width } = req.query;
   const widthInt = parseInt(width);
   let error;
 
-  if (String(widthInt) != width) {
+  if (width && String(widthInt) != width) {
     error = `Width must be an integer: ${width}`;
-    res.status(500);
-    res.send(error);
   }
   return error;
+}
+
+function handleError(res, type, error) {
+  res.status(type);
+  res.send(error);
+  return Promise.reject(error);
+}
+
+function getEnvironmentDependencies(environment) {
+  const admin = adminUtil(environment);
+  const uploads = collectionsUtil(environment).get('uploads');
+
+  return { admin, uploads };
+}
+
+function getDoc(admin, uploads, md5Hash) {
+  return admin
+    .firestore()
+    .collection(uploads)
+    .doc(md5Hash);
+}
+
+function getVersion(doc) {
+  const data = doc.data();
+  const versions = data.versions || {};
+  const versionName = getVersionName(doc);
+  return versions && versions[versionName];
+}
+
+function createNewVersion(admin, doc, width) {
+  const versionName = getVersionName(width);
+  const filename = getFilename(doc);
+  const file = getFile(admin, filename);
+
+  return Promise.resolve()
+    .then(() => {
+      if (versionName == 'original') {
+        return file;
+      } else {
+        return convertFile(admin, file, width);
+      }
+    })
+    .then(file => getSignedUrl(file))
+    .then(url => saveDoc(doc, versionName, url));
+}
+
+function getVersionName(width) {
+  return width || 'original';
+}
+
+function getFilename(doc) {
+  const { name } = doc.data();
+  return name;
+}
+
+function convertFile(admin, file, width) {
+  const filename = file.name;
+  const localFilename = getLocalFilename(filename);
+
+  return file
+    .download({ destination: localFilename })
+    .then(() => convertLocalFile(localFilename, width))
+    .then(() => {
+      const destination = getDestination(filename, width);
+      const newFile = getFile(admin, destination);
+
+      return newFile.bucket
+        .upload(localFilename, { destination })
+        .then(() => unlinkPromise(localFilename))
+        .then(() => newFile);
+    });
+}
+
+function getLocalFilename(filename) {
+  return path.resolve(__dirname, `../tmp/${path.parse(filename).base}`);
+}
+
+function convertLocalFile(localFilename, width) {
+  const cmd = getCmd(localFilename, width);
+  return execPromise(cmd);
+}
+
+function getCmd(localFilename, width) {
+  const widthInt = parseInt(width);
+  return `convert ${localFilename} -resize ${widthInt}\\> ${localFilename}`;
+}
+
+function execPromise(cmd) {
+  return new Promise((resolve, reject) =>
+    exec(cmd, (error, stdout) => (error ? reject(error) : resolve(stdout)))
+  );
+}
+
+function getDestination(filename, width) {
+  const filenameParts = filename.split('/');
+  filenameParts[filenameParts.length - 2] = width;
+  return filenameParts.join('/');
+}
+
+function getFile(admin, filename) {
+  return admin
+    .storage()
+    .bucket()
+    .file(filename);
+}
+
+function unlinkPromise(localFilename) {
+  return new Promise(
+    (resolve, reject) => fs.unlink(localFilename, err => err && reject(err)) || resolve()
+  );
 }
 
 function getSignedUrl(file) {
@@ -21,77 +162,11 @@ function getSignedUrl(file) {
     .then(([url]) => url);
 }
 
-module.exports = ({ environment }) => (req, res) => {
-  const error = getError(req, res);
-  if (error) {
-    return Promise.reject(error);
-  } else {
-    const { md5Hash, width } = req.query;
-    const { adminUtil, collectionsUtil } = require('../utils');
-    const admin = adminUtil(environment);
-    const uploads = collectionsUtil(environment).get('uploads');
-    const doc = admin
-      .firestore()
-      .collection(uploads)
-      .doc(md5Hash);
-
-    return doc.get().then(doc => {
-      if (!doc.exists) {
-        res.sendStatus(404);
-      } else {
-        const data = doc.data();
-        const filename = data.name;
-        const versions = data.versions || {};
-        const versionName = width || 'original';
-        const version = versions && versions[versionName];
-
-        if (version) {
-          return version;
-        } else {
-          const bucket = admin.storage().bucket();
-          const file = bucket.file(filename);
-
-          if (versionName == 'original') {
-            return getSignedUrl(file).then(url => {
-              versions.original = url;
-              return doc.ref.update({ versions }).then(() => url);
-            });
-          } else {
-            const widthInt = parseInt(width);
-            const destination = `tmp/${path.parse(file.name).base}`;
-            const cmd = `convert ${destination} -resize ${widthInt}\> ${destination}`;
-
-            file
-              .download({ destination })
-              .catch(error => {
-                console.error('Failed to download file', error);
-                res.status(500);
-              })
-              .then(() => {
-                
-                return new Promise((resolve, reject) => {
-                  exec(cmd, (error, stdout) => (error ? reject(error) : resolve(stdout)));
-                });
-              })
-              .then(() => {
-                const filenameParts = filename.split('/');
-                filenameParts.splice(filenameParts.length - 1, 0, width);
-                const resizedFilename = filenameParts.join('/');
-                const file = bucket.file(resizedFilename);
-                return file.upload(destination).then(() => file);
-              })
-              .then(file => getSignedUrl(file))
-              .then(url => {
-                versions.original = url;
-                return doc.ref.update({ versions }).then(() => url);
-              });
-          }
-
-          // get link to original if missing
-          // create a size if it doesn't exist
-          // pipe it out
-        }
-      }
-    });
+function saveDoc(doc, versionName, url) {
+  let { versions } = doc.data();
+  if (!versions) {
+    versions = {};
   }
-};
+  versions[versionName] = url;
+  return doc.ref.update({ versions }).then(() => url);
+}

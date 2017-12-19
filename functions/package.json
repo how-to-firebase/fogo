@@ -12,7 +12,9 @@
     "version": "node --version"
   },
   "dependencies": {
+    "@google-cloud/storage": "^1.5.1",
     "@quiver/firebase-utilities": "^0.0.2",
+    "fast-crc32c": "^1.0.4",
     "firebase-admin": "~5.4.2",
     "firebase-functions": "^0.7.1"
   },

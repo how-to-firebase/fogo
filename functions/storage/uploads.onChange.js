@@ -3,6 +3,9 @@ module.exports = ({ environment }) => event => {
   const path = name.split('/');
   const filename = path.pop();
 
+  console.log('TODO: Remove files that have been deleted. Remove all converted versions as well.');
+  console.log('event', event);
+
   if (!path.includes('uploads')) {
     return Promise.resolve({ skipped: true });
   } else {

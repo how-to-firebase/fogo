@@ -20,7 +20,7 @@ describe('Image onRequest', () => {
   });
 
   let doc;
-  beforeEach(() => {
+  beforeAll(() => {
     const admin = adminUtil(environment);
     const uploads = collectionsUtil(environment).get('uploads');
 
@@ -32,33 +32,47 @@ describe('Image onRequest', () => {
 
   it('should return a 404', done => {
     req.query = { md5Hash: 'not a valid hash', width: 100 };
-    fn(req, res).then(() => {
-      expect(res.statusCode).toEqual(404);
-      done();
-    });
+    fn(req, res)
+      .then(done.fail)
+      .catch(error => {
+        expect(res.statusCode).toEqual(404);
+        done();
+      });
   });
 
   it('should return a 500', done => {
     req.query = { width: '1.1' };
-    fn(req, res).then(done.fail)
-    .catch(error => {
-      expect(res.statusCode).toEqual(500);
-      done();
-    });
+    fn(req, res)
+      .then(done.fail)
+      .catch(error => {
+        expect(res.statusCode).toEqual(500);
+        done();
+      });
   });
 
   describe('Versions', () => {
-    beforeEach(done => {
+    beforeAll(done => {
       doc.update({ versions: FieldValue.delete() }).then(() => done(), done.fail);
+    });
+
+    it('should pipe an original file', done => {
+      req.query = { md5Hash: md5Hash };
+      fn(req, res).then(url => {
+        expect(typeof url).toEqual('string');
+        expect(res.statusCode).toEqual(200);
+        done();
+      });
     });
 
     it('should resize an image', done => {
       req.query = { md5Hash: md5Hash, width: 100 };
-      fn(req, res).then(url => {
-        console.log('url', url);
-        expect(res.statusCode).toEqual(200);
-        done();
-      });
+      fn(req, res)
+        .then(url => {
+          expect(res.statusCode).toEqual(200);
+          expect(typeof url).toEqual('string');
+          done();
+        })
+        .catch(done.fail);
     });
   });
 });
