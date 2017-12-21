@@ -75,6 +75,6 @@ export default class Fogo extends Component {
 
   handlePath({ matches, path, url }) {
     const { path: laggedPath } = store.getState();
-    store.setState({ laggedPath, path });
+    store.setState({ laggedPath, path }); 
   }
 }

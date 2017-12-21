@@ -20,7 +20,7 @@ module.exports = ({ environment }) => event => {
 
     if (resourceState == 'exists') {
       const payload = Object.assign(event.data, environment.env);
-      return doc.update(payload).then(() => payload);
+      return doc.set(payload, { merge: true }).then(() => payload);
     } else if (resourceState == 'not_exists') {
       return doc
         .get()

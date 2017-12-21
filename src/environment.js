@@ -1,11 +1,22 @@
 // Environment Variables
+const defaults = {
+  collections: {
+    uploads: 'uploads',
+  },
+  urls: {
+    image: 'https://us-central1-quiver-four.cloudfunctions.net/image'
+  }
+};
 const production = {
+  ...defaults,
   symbol: Symbol('production'),
 };
 const test = {
+  ...defaults,
   symbol: Symbol('test'),
 };
 const development = {
+  ...defaults,
   symbol: Symbol('development'),
   storage: { path: 'development/uploads' },
 };

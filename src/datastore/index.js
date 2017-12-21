@@ -8,12 +8,19 @@ const store = createStore({
   laggedPath: null,
   laggedCurrentUser: null,
   environment,
+  images: [],
+  imagesAllLoaded: false
 });
 
 const actions = store => rawActions;
+
+const mappedActions = {};
+for (let i in rawActions ) {
+  mappedActions[i] = store.action(rawActions[i]);
+}
 
 store.subscribe(state => {
   console.log('state', state);
 });
 
-export { store, actions };
+export { store, actions, mappedActions };
