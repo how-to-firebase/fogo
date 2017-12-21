@@ -1,6 +1,21 @@
 .mdc-toolbar {
+  .mdc-toolbar__section {
+    align-items: center;
+  }
+  
   .mdc-toolbar__title {
     font-family: cortado !important;
     font-size: 2rem !important;
+    flex-grow: 1;
   }
 }
+
+.actions {
+  padding: 0 2rem; 
+}
+
+.icon {
+  cursor: pointer;
+  margin: 0 1rem;
+}
+

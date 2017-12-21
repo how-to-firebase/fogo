@@ -3,15 +3,17 @@ import * as rawActions from './actions';
 import environment from '../environment';
 
 const store = createStore({
-  showMenu: false,
-  path: null,
-  laggedPath: null,
-  laggedCurrentUser: null,
-  listState: null,
+  controlSelect: false,
   environment,
   images: [],
   imagesAllLoaded: false,
+  showMenu: false,
+  laggedPath: null,
+  laggedCurrentUser: null,
+  listState: null,
+  path: null,
   selection: new Set(),
+  shiftSelect: false,
 });
 
 const actions = store => rawActions;

@@ -31,6 +31,7 @@
   justify-content: center;
   flex-direction: column;
   min-height: 200px;
+  user-select: none;
 
   img {
     width: 250px;
@@ -39,12 +40,11 @@
 
 .icon {
   position: absolute;
-  top: 8px;
-  left: .5rem;
+  top: 10px;
+  left: 10px;
   border: 2px solid transparent;
   border-radius: 50%;
   display: none;
-  padding: 2px;
   font-size: 18px;
   z-index: 1;
 
