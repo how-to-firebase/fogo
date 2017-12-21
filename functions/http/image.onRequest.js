@@ -88,7 +88,7 @@ function createNewVersion(admin, doc, width) {
         return convertFile(admin, file, width);
       }
     })
-    .then(file => getSignedUrl(file).then(url => ({url, name: file.name})))
+    .then(file => getSignedUrl(file).then(url => ({ url, name: file.name })))
     .then(version => saveDoc(doc, versionName, version));
 }
 
@@ -113,7 +113,12 @@ function convertFile(admin, file, width) {
       const newFile = getFile(admin, destination);
 
       return newFile.bucket
-        .upload(localFilename, { destination })
+        .upload(localFilename, {
+          destination,
+          metadata: {
+            cacheControl: 'public, max-age=31536000',
+          },
+        })
         .then(() => unlinkPromise(localFilename))
         .then(() => newFile);
     });

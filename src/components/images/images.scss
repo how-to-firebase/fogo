@@ -1,13 +1,32 @@
-.tiles {
+.grid {
+  display: flex;
+  width: calc(100vw - 3rem);
+  flex-wrap: wrap;
   justify-content: center;
 }
 
-.title {
-  line-height: 1.1rem;
+.item {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem;
 }
 
-.secondary {
+.description {
   background: rgba(0, 0, 0, .5) !important;
+  padding: 1rem;
+  color: white;
+  text-align: center;
+}
+
+.image {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+
+  img {
+    width: 250px;
+  }
 }
 
 .loadMore {

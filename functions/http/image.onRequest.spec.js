@@ -73,5 +73,16 @@ describe('Image onRequest', () => {
         })
         .catch(done.fail);
     });
+
+    it('should refuse to resize an image to a larger width', done => {
+      req.query = { record, environment: 'test', width: 500 };
+      fn(req, res)
+        .then(version => {
+          expect(res.statusCode).toEqual(200);
+          expect(typeof version.url).toEqual('string');
+          done();
+        })
+        .catch(done.fail);
+    });
   });
 });

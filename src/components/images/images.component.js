@@ -21,9 +21,9 @@ export default class Images extends Component {
   }
 
   render({ images }) {
-    const tiles = images.map(image => {
+    const items = images.map(image => {
       const name = image.name.split('/').pop();
-      const width = 200;
+      const width = 250;
       const version = (image.versions && image.versions[width]) || {};
 
       if (!version.url) {
@@ -31,29 +31,19 @@ export default class Images extends Component {
       }
 
       return (
-        <GridList.Tile>
-          <GridList.PrimaryTile>
-            <GridList.PrimaryContentTile src={version.url || spinnerSvg} />
-          </GridList.PrimaryTile>
-          <GridList.SecondaryTile className={style.secondary}>
-            <GridList.IconTile onClick={() => console.log('Edit Tile')}>edit</GridList.IconTile>
-            <GridList.TitleTile className={style.title}>{name}</GridList.TitleTile>
-          </GridList.SecondaryTile>
-        </GridList.Tile>
+        <li class={style.item}>
+          <div class={style.description}>{name}</div>
+          <div class={style.image}>
+            <img src={version.url || spinnerSvg} alt={name} />
+          </div>
+        </li>
       );
     });
 
     return (
       <div>
-        ul
-        <GridList
-          header-caption={true}
-          with-icon-align="end"
-          twoline-caption={true}
-          tile-aspect="1x1"
-        >
-          <GridList.Tiles className={style.tiles}>{tiles}</GridList.Tiles>
-        </GridList>
+        <ul class={style.grid}>{items}</ul>
+
         <Button className={style.loadMore} onClick={loadImages}>
           Load More
         </Button>
