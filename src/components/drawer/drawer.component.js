@@ -12,11 +12,6 @@ import 'preact-material-components/List/style.css';
 export default connect('showMenu', actions)(({ showMenu, toggleMenu }) => (
   <div>
     <Drawer.TemporaryDrawer open={showMenu} onClose={toggleMenu} className={style.drawer}>
-      {/* <Drawer.TemporaryDrawerHeader
-        className={['mdc-theme--primary-bg', style.header].join(' ')}
-      >
-        Choose
-      </Drawer.TemporaryDrawerHeader> */}
       <Drawer.TemporaryDrawerContent>
         <List className={style.list}>
           <Link activeClassName="active" href="/">

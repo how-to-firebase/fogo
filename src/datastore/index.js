@@ -7,15 +7,17 @@ const store = createStore({
   path: null,
   laggedPath: null,
   laggedCurrentUser: null,
+  listState: null,
   environment,
   images: [],
-  imagesAllLoaded: false
+  imagesAllLoaded: false,
+  selection: new Set(),
 });
 
 const actions = store => rawActions;
 
 const mappedActions = {};
-for (let i in rawActions ) {
+for (let i in rawActions) {
   mappedActions[i] = store.action(rawActions[i]);
 }
 

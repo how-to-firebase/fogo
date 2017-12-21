@@ -3,7 +3,14 @@
 html, body {
 	font: 14px/1.21 'Roboto', arial, sans-serif;
 	font-weight: 400;
-	margin: 0;
+  margin: 0;
+  
+  --mdc-theme-primary: #29b6f6;
+  --mdc-theme-primary-light: #73e8ff;
+  --mdc-theme-primary-dark: #0086c3;
+  --mdc-theme-secondary: #ec407a;
+  --mdc-theme-secondary-light: #ff77a9;
+  --mdc-theme-secondary-dark: #b4004e;
 }
 
 a {
