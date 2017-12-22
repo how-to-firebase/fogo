@@ -17,10 +17,14 @@ module.exports = ({ environment }) => event => {
       .firestore()
       .collection(uploads)
       .doc(`${nodeEnv}-${md5Hash}`);
+    const file = admin.storage().bucket().file(name);
 
     if (resourceState == 'exists') {
       const payload = Object.assign(event.data, environment.env);
-      return doc.set(payload, { merge: true }).then(() => payload);
+      return file.download().then(data => {
+        console.log('data', data);
+        return doc.set(payload, { merge: true }).then(() => payload);
+      });      
     } else if (resourceState == 'not_exists') {
       return doc
         .get()
@@ -41,3 +45,7 @@ module.exports = ({ environment }) => event => {
     }
   }
 };
+
+function getFirst512Bytes(params) {
+  
+}

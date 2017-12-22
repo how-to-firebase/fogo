@@ -1,3 +1,5 @@
+import { setImages } from '..';
+
 export async function loadImages({ images, imagesAllLoaded, environment }) {
   const uploads = environment.collections.uploads;
   const collection = window.firebase
@@ -18,7 +20,7 @@ export async function loadImages({ images, imagesAllLoaded, environment }) {
         ...doc.data(),
       });
     });
-    
+
     imagesAllLoaded = !docs.size;
 
     return { images: images.concat(results), imagesAllLoaded };

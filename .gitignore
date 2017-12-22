@@ -3,3 +3,6 @@ node_modules
 /*.log
 
 functions/tmp/*
+
+service-account.json
+config.json
