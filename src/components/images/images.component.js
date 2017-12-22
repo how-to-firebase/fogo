@@ -76,7 +76,7 @@ export default class Images extends Component {
           <Icon className={`${style.icon}`} onClick={iconClick}>
             done
           </Icon>
-          <div class={style.description}>{name}</div>
+          {/* <div class={style.description}>{name}</div> */}
           <div class={style.image}>
             <img src={version.url || spinnerSvg} alt={name} />
           </div>
