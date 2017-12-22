@@ -9,7 +9,7 @@ module.exports = ({ environment }) => (req, res) => {
   if (error) {
     return handleError(res, 500, error);
   } else {
-    const { record, width } = req.query;
+    const { record, width, height } = req.query;
     const { admin, uploads } = getEnvironmentDependencies(environment);
     const doc = getDoc(admin, uploads, record);
 
@@ -20,12 +20,12 @@ module.exports = ({ environment }) => (req, res) => {
         if (!doc.exists) {
           return handleError(res, 404, 'Not Found');
         } else {
-          const version = getVersion(doc);
+          const version = getVersion(doc, { width, height });
           const admin = adminUtil(environment);
 
           return (
             version ||
-            createNewVersion(admin, doc, width).catch(error => handleError(res, 500, error))
+            createNewVersion(admin, doc, { width, height }).catch(error => handleError(res, 500, error))
           );
         }
       })
@@ -38,14 +38,18 @@ module.exports = ({ environment }) => (req, res) => {
 };
 
 function getError(req) {
-  const { width } = req.query;
-  const widthInt = parseInt(width);
+  const { width, height } = req.query;
   let error;
 
-  if (width && String(widthInt) != width) {
-    error = `Width must be an integer: ${width}`;
+  if ((width && !isInt(width)) || (height && !isInt(height))) {
+    error = `width or height must be an integer: ${JSON.stringify({ width, height })}`;
   }
   return error;
+}
+
+function isInt(s) {
+  const int = parseInt(s);
+  return s && String(int) == s;
 }
 
 function handleError(res, type, error) {
@@ -68,15 +72,15 @@ function getDoc(admin, uploads, record) {
     .doc(record);
 }
 
-function getVersion(doc) {
+function getVersion(doc, { width, height }) {
   const data = doc.data();
   const versions = data.versions || {};
-  const versionName = getVersionName(doc);
+  const versionName = getVersionName({ width, height });
   return versions && versions[versionName];
 }
 
-function createNewVersion(admin, doc, width) {
-  const versionName = getVersionName(width);
+function createNewVersion(admin, doc, { width, height }) {
+  const versionName = getVersionName({ width, height });
   const filename = getFilename(doc);
   const file = getFile(admin, filename);
 
@@ -85,15 +89,15 @@ function createNewVersion(admin, doc, width) {
       if (versionName == 'original') {
         return file;
       } else {
-        return convertFile(admin, file, width);
+        return convertFile(admin, file, versionName);
       }
     })
     .then(file => getSignedUrl(file).then(url => ({ url, name: file.name })))
     .then(version => saveDoc(doc, versionName, version));
 }
 
-function getVersionName(width) {
-  return width || 'original';
+function getVersionName({ width, height }) {
+  return width || (height && `x${height}`) || 'original';
 }
 
 function getFilename(doc) {
@@ -101,15 +105,15 @@ function getFilename(doc) {
   return name;
 }
 
-function convertFile(admin, file, width) {
+function convertFile(admin, file, versionName) {
   const filename = file.name;
   const localFilename = getLocalFilename(filename);
 
   return file
     .download({ destination: localFilename })
-    .then(() => convertLocalFile(localFilename, width))
+    .then(() => convertLocalFile(localFilename, versionName))
     .then(() => {
-      const destination = getDestination(filename, width);
+      const destination = getDestination(filename, versionName);
       const newFile = getFile(admin, destination);
 
       return newFile.bucket
@@ -128,14 +132,13 @@ function getLocalFilename(filename) {
   return `/tmp/${path.parse(filename).base}`;
 }
 
-function convertLocalFile(localFilename, width) {
-  const cmd = getCmd(localFilename, width);
+function convertLocalFile(localFilename, versionName) {
+  const cmd = getCmd(localFilename, versionName);
   return execPromise(cmd);
 }
 
-function getCmd(localFilename, width) {
-  const widthInt = parseInt(width);
-  return `convert ${localFilename} -resize ${widthInt}\\> ${localFilename}`;
+function getCmd(localFilename, versionName) {
+  return `convert ${localFilename} -resize ${versionName}\\> ${localFilename}`;
 }
 
 function execPromise(cmd) {
@@ -144,9 +147,9 @@ function execPromise(cmd) {
   );
 }
 
-function getDestination(filename, width) {
+function getDestination(filename, versionName) {
   const filenameParts = filename.split('/');
-  filenameParts[filenameParts.length - 2] = width;
+  filenameParts[filenameParts.length - 2] = versionName;
   return filenameParts.join('/');
 }
 

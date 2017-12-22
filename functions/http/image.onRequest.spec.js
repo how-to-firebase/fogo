@@ -63,8 +63,19 @@ describe('Image onRequest', () => {
       });
     });
 
-    it('should resize an image', done => {
-      req.query = { record, environment: 'test', width: 100 };
+    it('should resize an image by width', done => {
+      req.query = { record, environment: 'test', width: 50 };
+      fn(req, res)
+        .then(version => {
+          expect(res.statusCode).toEqual(200);
+          expect(typeof version.url).toEqual('string');
+          done();
+        })
+        .catch(done.fail);
+    });
+    
+    it('should resize an image by height', done => {
+      req.query = { record, environment: 'test', height: 50 };
       fn(req, res)
         .then(version => {
           expect(res.statusCode).toEqual(200);

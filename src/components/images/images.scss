@@ -2,7 +2,6 @@
   display: flex;
   width: calc(100vw - 3rem);
   flex-wrap: wrap;
-  justify-content: center;
 }
 
 .item {
@@ -11,13 +10,18 @@
   flex-direction: column;
   margin: 4px;
   position: relative;
+
+  &:hover .description {
+    display: block;
+  }
 }
 
 .description {
   background: rgba(0, 0, 0, .5) !important;
+  display: none;
   padding: 1rem;
   color: white;
-  text-align: center;
+  text-align: right;
 
   position: absolute;
   top: 0;
@@ -34,7 +38,7 @@
   user-select: none;
 
   img {
-    width: 250px;
+    height: 200px;
   }
 }
 
@@ -78,5 +82,10 @@
     background: none;
     border-color: #DDD;
     color: transparent;
+  }
+
+  
+  .description {
+    display: block;
   }
 }

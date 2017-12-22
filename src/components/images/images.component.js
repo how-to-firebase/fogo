@@ -63,12 +63,13 @@ export default class Images extends Component {
     const items = images.map(image => {
       const id = image.__id;
       const name = image.name.split('/').pop();
-      const width = 250;
-      const version = (image.versions && image.versions[width]) || {};
+      const height = 200;
+      const versionName = `x${height}`;
+      const version = (image.versions && image.versions[versionName]) || {};
       const isSelected = selection.has(id);
 
       if (!version.url) {
-        loadImageVersion({ record: image.__id, width });
+        loadImageVersion({ record: image.__id, height });
       }
 
       return (
@@ -76,7 +77,7 @@ export default class Images extends Component {
           <Icon className={`${style.icon}`} onClick={iconClick}>
             done
           </Icon>
-          {/* <div class={style.description}>{name}</div> */}
+          <div class={style.description}>{name}</div>
           <div class={style.image}>
             <img src={version.url || spinnerSvg} alt={name} />
           </div>
