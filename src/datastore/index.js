@@ -12,6 +12,7 @@ const store = createStore({
   laggedCurrentUser: null,
   listState: null,
   path: null,
+  selecting: false,
   selection: new Set(),
   shiftSelect: false,
 });

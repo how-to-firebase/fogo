@@ -27,7 +27,8 @@ module.exports = ({ environment }) => event => {
         .then(doc => {
           const { versions } = doc.data();
           return Promise.all(
-            versions.map(({ name }) => {
+            Object.keys(versions).map(key => {
+              const { name } = versions[key];
               return admin
                 .storage()
                 .bucket()
