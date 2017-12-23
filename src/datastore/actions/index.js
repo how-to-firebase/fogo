@@ -5,6 +5,7 @@ export * from './loadImages.action';
 export * from './loadImageVersion.action';
 export * from './removeSelection.action';
 export * from './setControlSelect.action';
+export * from './setImage.action';
 export * from './setImages.action';
 export * from './setSelecting.action';
 export * from './setShiftSelect.action';

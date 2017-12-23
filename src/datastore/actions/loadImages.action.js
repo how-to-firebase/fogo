@@ -5,7 +5,7 @@ export async function loadImages({ images, imagesAllLoaded, environment }) {
   const collection = window.firebase
     .firestore()
     .collection(uploads)
-    .orderBy('name')
+    .orderBy('CreateDate')
     .limit(3);
   const lastImage = images[images.length - 1] || {};
   const lastName = lastImage.name;

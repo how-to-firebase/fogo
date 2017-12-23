@@ -10,6 +10,7 @@ const {
   loadImageVersion,
   removeSelection,
   setControlSelect,
+  setImage,
   setSelecting,
   setShiftSelect,
 } = mappedActions;
@@ -25,6 +26,9 @@ import 'preact-material-components/Icon/style.css';
 // Svg
 import spinnerSvg from '../../assets/svg/spinner.svg';
 
+// Components
+import ImageDetail from '../image-detail/imageDetail.component';
+
 function handleKeydown({ key }) {
   if (key == 'Shift') setShiftSelect(true);
   if (key == 'Control') setControlSelect(true);
@@ -34,14 +38,16 @@ function handleKeyup({ key }) {
   if (key == 'Escape') {
     setSelecting(false);
     clearSelection();
+    setImage();
   }
 
   if (key == 'Shift') setShiftSelect(false);
   if (key == 'Control') setControlSelect(false);
 }
 
-@connect(({ images, selecting, selection, shiftSelect, controlSelect }) => ({
+@connect(({ images, image, selecting, selection, shiftSelect, controlSelect }) => ({
   images,
+  image,
   selecting,
   selection,
   shiftSelect,
@@ -59,7 +65,7 @@ export default class Images extends Component {
     window.document.removeEventListener('keyup', handleKeyup);
   }
 
-  render({ images, selecting, selection, shiftSelect, controlSelect }) {
+  render({ images, image, selecting, selection, shiftSelect, controlSelect }) {
     const items = images.map(image => {
       const id = image.__id;
       const name = image.name.split('/').pop();
@@ -126,11 +132,15 @@ export default class Images extends Component {
         const endIndex = Math.max(firstSelectedItemIndex, clickedItemIndex);
         const ids = items.slice(startIndex, endIndex + 1).map(item => item.getAttribute('item-id'));
         addSelection(ids);
+      } else {
+        const image = images.find(image => image.__id == id);
+        setImage(image);
       }
     }
 
     return (
       <div>
+        <ImageDetail image={image} />
         <ul class={style.grid} selecting={selecting}>
           {items}
         </ul>

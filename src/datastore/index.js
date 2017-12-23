@@ -6,6 +6,7 @@ const store = createStore({
   controlSelect: false,
   environment,
   images: [],
+  image: null,
   imagesAllLoaded: false,
   showMenu: false,
   laggedPath: null,

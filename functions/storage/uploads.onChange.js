@@ -83,5 +83,9 @@ function deleteFile(admin, doc) {
           })
       );
     })
+    .catch(error => {
+      console.error(error);
+      return true;
+    })
     .then(() => doc.delete());
 }
