@@ -22,6 +22,7 @@ module.exports = ({ environment }) => event => {
     if (resourceState == 'exists') {
       const payload = Object.assign(event.data, environment.env);
       return file.download().then(data => {
+        
         console.log('data', data);
         return doc.set(payload, { merge: true }).then(() => payload);
       });      

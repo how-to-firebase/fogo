@@ -101,7 +101,7 @@ export default class Images extends Component {
       if (!isSelected) {
         addSelection(id);
       } else {
-        if (selection.size == 1) {
+        if (selection.size <= 1) {
           setSelecting(false);
         }
         removeSelection(id);

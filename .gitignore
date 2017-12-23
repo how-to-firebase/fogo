@@ -7,3 +7,7 @@ functions/tmp/*
 service-account.json
 config.json
 environment.js
+
+.vscode
+
+*.log

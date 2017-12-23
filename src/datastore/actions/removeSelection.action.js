@@ -1,4 +1,7 @@
-export function removeSelection({ selection }, id) {
+export function removeSelection({ selection, selecting }, id) {
   selection.delete(id);
-  return { selection: new Set(selection) };
+  if (!selection.size) {
+    selecting = false;
+  }
+  return { selection: new Set(selection), selecting };
 }
