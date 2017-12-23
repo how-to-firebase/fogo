@@ -1,52 +1,87 @@
-const { adminUtil } = require('../utils');
+const { adminUtil, collectionsUtil } = require('../utils');
+const exifParser = require('exif-parser');
 
 module.exports = ({ environment }) => event => {
-  const { admin } = adminUtil(environment);
   const { md5Hash, name, resourceState } = event.data;
-  const { nodeEnv } = environment;
   const path = name.split('/');
-  const filename = path.pop();
 
-  if (path.includes('test') || !path.includes('uploads')) {
+  if (shouldSkip(path)) {
     return Promise.resolve({ skipped: true });
   } else {
-    const { adminUtil, collectionsUtil } = require('../utils');
     const admin = adminUtil(environment);
-    const uploads = collectionsUtil(environment).get('uploads');
-    const doc = admin
-      .firestore()
-      .collection(uploads)
-      .doc(`${nodeEnv}-${md5Hash}`);
-    const file = admin.storage().bucket().file(name);
+    const doc = getDoc(admin, environment, md5Hash);
+    const file = getFile(admin, name);
 
-    if (resourceState == 'exists') {
-      const payload = Object.assign(event.data, environment.env);
-      return file.download().then(data => {
-        
-        console.log('data', data);
-        return doc.set(payload, { merge: true }).then(() => payload);
-      });      
-    } else if (resourceState == 'not_exists') {
-      return doc
-        .get()
-        .then(doc => {
-          const { versions } = doc.data();
-          return Promise.all(
-            Object.keys(versions).map(key => {
-              const { name } = versions[key];
-              return admin
-                .storage()
-                .bucket()
-                .file(name)
-                .delete();
-            })
-          );
-        })
-        .then(() => doc.delete());
-    }
+    return resourceState == 'not_exists'
+      ? deleteFile(admin, doc)
+      : getExif(file)
+          .then(exif => getPayload(event.data, environment.env, exif))
+          .then(payload => doc.set(payload, { merge: true }).then(() => payload));
   }
 };
 
-function getFirst512Bytes(params) {
-  
+function getDoc(admin, environment, md5Hash) {
+  const uploads = collectionsUtil(environment).get('uploads');
+  const { nodeEnv } = environment;
+  return admin
+    .firestore()
+    .collection(uploads)
+    .doc(`${nodeEnv}-${md5Hash}`);
+}
+
+function getFile(admin, name) {
+  return admin
+    .storage()
+    .bucket()
+    .file(name);
+}
+
+function shouldSkip(path) {
+  return path.includes('test') || !path.includes('uploads');
+}
+
+function getExif(file) {
+  return file.download({ start: 0, end: 1024 }).then(([buffer]) => {
+    let exif = {};
+    try {
+      exif = exifParser.create(buffer).parse();
+    } catch (e) {
+      console.log('exif parsing error', e);
+    }
+    return exif;
+  });
+}
+function getPayload(data, env, exif) {
+  const payload = Object.assign(data, env);
+  return mergeExif(payload, exif);
+}
+
+function mergeExif(payload, exif) {
+  const { tags } = exif;
+  let merged = payload;
+
+  if (tags && tags.CreateDate) {
+    merged = Object.assign({ CreateDate: tags.CreateDate, tags }, payload);
+  }
+  return merged;
+}
+
+function deleteFile(admin, doc) {
+  return doc
+    .get()
+    .then(doc => {
+      const { versions } = doc.data();
+      return Promise.all(
+        Object.keys(versions || {})
+          .map(key => versions[key])
+          .map(version => {
+            return admin
+              .storage()
+              .bucket()
+              .file(version.name)
+              .delete();
+          })
+      );
+    })
+    .then(() => doc.delete());
 }

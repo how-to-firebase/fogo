@@ -25,7 +25,9 @@ module.exports = ({ environment }) => (req, res) => {
 
           return (
             version ||
-            createNewVersion(admin, doc, { width, height }).catch(error => handleError(res, 500, error))
+            createNewVersion(admin, doc, { width, height }).catch(error =>
+              handleError(res, 500, error)
+            )
           );
         }
       })

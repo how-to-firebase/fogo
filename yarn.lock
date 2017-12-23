@@ -256,26 +256,26 @@
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@material/typography/-/typography-0.3.0.tgz#f828c2d3215bfd66c58072709b4260c64125390a"
 
-"@quiver/firebase-authentication@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@quiver/firebase-authentication/-/firebase-authentication-0.0.1.tgz#52be0440edc11b31e6367e2b2eabe49963badee1"
+"@quiver/firebase-authentication@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@quiver/firebase-authentication/-/firebase-authentication-0.0.2.tgz#9c3e27c556324d7778e9f5c80e3ba166e883dcc5"
   dependencies:
     SuperTinyIcons "https://github.com/edent/SuperTinyIcons.git"
     email-validator "^1.1.1"
     linkstate "^1.1.0"
     preact "^8.2.1"
     preact-compat "^3.17.0"
-    preact-material-components "^1.2.4"
+    preact-material-components "^1.3.2"
     simple-country-dial-codes "https://github.com/xxxdepy/simple-country-dial-codes.git"
 
-"@quiver/storage-uploader@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@quiver/storage-uploader/-/storage-uploader-0.0.1.tgz#d12ef2aeeafb613ab3b297280893bfc557e3536c"
+"@quiver/storage-uploader@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@quiver/storage-uploader/-/storage-uploader-0.0.2.tgz#197058b56eca81baab1632a09fab4280f5eb8d8f"
   dependencies:
     linkstate "^1.1.0"
     preact "^8.2.1"
     preact-compat "^3.17.0"
-    preact-material-components "^1.2.4"
+    preact-material-components "^1.3.2"
     rxjs "^5.5.5"
 
 "@types/configstore@^2.1.1":
@@ -317,9 +317,9 @@
   version "0.0.32"
   resolved "https://registry.yarnpkg.com/@types/tmp/-/tmp-0.0.32.tgz#0d3cb31022f8427ea58c008af32b80da126ca4e3"
 
-"SuperTinyIcons@https://github.com/edent/SuperTinyIcons.git":
+"SuperTinyIcons@git+https://github.com/edent/SuperTinyIcons.git":
   version "0.0.0"
-  resolved "https://github.com/edent/SuperTinyIcons.git#6438f6f2ee6b322269f5fe1c004e653fe30d3f87"
+  resolved "git+https://github.com/edent/SuperTinyIcons.git#6438f6f2ee6b322269f5fe1c004e653fe30d3f87"
 
 abab@^1.0.3:
   version "1.0.4"
@@ -6324,7 +6324,7 @@ preact-compat@^3.14.3, preact-compat@^3.17.0:
     prop-types "^15.5.8"
     standalone-react-addons-pure-render-mixin "^0.1.1"
 
-preact-material-components@^1.2.4, preact-material-components@^1.3.2:
+preact-material-components@^1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/preact-material-components/-/preact-material-components-1.3.2.tgz#c04a345a4abf594bee4d5f22527a45014ea2c8a5"
   dependencies:
@@ -7178,9 +7178,9 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-"simple-country-dial-codes@https://github.com/xxxdepy/simple-country-dial-codes.git":
+"simple-country-dial-codes@git+https://github.com/xxxdepy/simple-country-dial-codes.git":
   version "0.0.0"
-  resolved "https://github.com/xxxdepy/simple-country-dial-codes.git#b5068a1ef09ad06672373b9823522fba4c74b1bb"
+  resolved "git+https://github.com/xxxdepy/simple-country-dial-codes.git#b5068a1ef09ad06672373b9823522fba4c74b1bb"
 
 simplehttp2server@^2.0.0:
   version "2.0.0"
