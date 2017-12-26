@@ -31,12 +31,12 @@ export default function imageDetail({ image }) {
           alt={version && version.name}
         />
         <ul class={style.description}>
-          <li>{image.name}</li>
-          <li>{image.contentType}</li>
-          <li>{new Date(image.tags.CreateDate).toString()}</li>
+          <li>{image.name.split('/').pop()}</li>
           <li>
-            {image.tags.ExifImageHeight}x{image.tags.ExifImageWidth}
+            {image.contentType} @ {image.tags.ExifImageHeight}x{image.tags.ExifImageWidth}
           </li>
+          <li>{new Date(image.tags.CreateDate).toString()}</li>
+          <li><img src="https://goo.gl/kswJk6" alt=""/></li>
         </ul>
       </div>
     )

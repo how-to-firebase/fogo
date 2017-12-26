@@ -140,7 +140,7 @@ export default class Images extends Component {
 
     return (
       <div>
-        <ImageDetail image={image} />
+        <ImageDetail image={image} onClick={() => setSelecting(false)}/>
         <ul class={style.grid} selecting={selecting}>
           {items}
         </ul>

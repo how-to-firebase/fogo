@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const request = require('request');
 const { exec } = require('child_process');
+const GoogleUrl = require('google-url');
 const { adminUtil, collectionsUtil } = require('../utils');
 
 module.exports = ({ environment }) => (req, res) => {
@@ -9,6 +10,8 @@ module.exports = ({ environment }) => (req, res) => {
   if (error) {
     return handleError(res, 500, error);
   } else {
+    const googleUrl = new GoogleUrl({ key: environment.apiKeys.googleUrlShortener });
+    const shorten = promisify(googleUrl.shorten.bind(googleUrl));
     const { record, width, height } = req.query;
     const { admin, uploads } = getEnvironmentDependencies(environment);
     const doc = getDoc(admin, uploads, record);
@@ -25,7 +28,7 @@ module.exports = ({ environment }) => (req, res) => {
 
           return (
             version ||
-            createNewVersion(admin, doc, { width, height }).catch(error =>
+            createNewVersion(admin, shorten, doc, { width, height }).catch(error =>
               handleError(res, 500, error)
             )
           );
@@ -38,6 +41,11 @@ module.exports = ({ environment }) => (req, res) => {
       });
   }
 };
+
+function promisify(fn) {
+  return arg =>
+    new Promise((resolve, reject) => fn(arg, (err, res) => (err ? reject(err) : resolve(res))));
+}
 
 function getError(req) {
   const { width, height } = req.query;
@@ -81,7 +89,7 @@ function getVersion(doc, { width, height }) {
   return versions && versions[versionName];
 }
 
-function createNewVersion(admin, doc, { width, height }) {
+function createNewVersion(admin, shorten, doc, { width, height }) {
   const versionName = getVersionName({ width, height });
   const filename = getFilename(doc);
   const file = getFile(admin, filename);
@@ -95,6 +103,13 @@ function createNewVersion(admin, doc, { width, height }) {
       }
     })
     .then(file => getSignedUrl(file).then(url => ({ url, name: file.name })))
+    .then(({ url, name }) => {
+      return shorten(url).then(shortUrl => ({
+        url,
+        name,
+        shortUrl,
+      }));
+    })
     .then(version => saveDoc(doc, versionName, version));
 }
 
