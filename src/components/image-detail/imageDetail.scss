@@ -11,7 +11,7 @@
   justify-content: center;
   align-items: center;
 
-  z-index: 1000;
+  z-index: 10;
 }
 
 .image {
@@ -23,8 +23,25 @@
   color: white;
   list-style: none;
   font-size: 1.5rem;
+  padding: 0;
+
+  position: absolute;
+  bottom: 0;
 
   li {
     margin-bottom: 0.5rem;
+    overflow: hidden;
+    max-width: calc(100vw - 5rem);
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
+
+}
+
+.copy {
+  cursor: pointer;
+}
+
+.copyTarget {
+  margin-left: 1rem;
 }

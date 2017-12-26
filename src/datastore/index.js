@@ -3,7 +3,6 @@ import * as rawActions from './actions';
 import environment from '../environment';
 
 const store = createStore({
-  controlSelect: false,
   environment,
   images: [],
   image: null,
@@ -15,7 +14,6 @@ const store = createStore({
   path: null,
   selecting: false,
   selection: new Set(),
-  shiftSelect: false,
 });
 
 const actions = store => rawActions;

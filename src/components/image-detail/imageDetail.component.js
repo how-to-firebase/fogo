@@ -5,6 +5,8 @@ const { setImage, loadImageVersion } = mappedActions;
 
 import spinnerSvg from '../../assets/svg/spinner.svg';
 
+import Icon from 'preact-material-components/Icon';
+
 export default function imageDetail({ image }) {
   console.log('image', image);
   const versionName = 'original';
@@ -22,6 +24,18 @@ export default function imageDetail({ image }) {
     }
   }
 
+  const base = this.base;
+  function handleCopyClick({ target }) {
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(target.parentElement.children[1]);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    document.execCommand('copy');
+
+    dispatchEvent(new CustomEvent('alert', { detail: 'Copied text to clipboard', bubbles: true }));
+  }
+
   return (
     image && (
       <div id="overlay" class={style.overlay} onClick={handleOverlayClick}>
@@ -36,7 +50,12 @@ export default function imageDetail({ image }) {
             {image.contentType} @ {image.tags.ExifImageHeight}x{image.tags.ExifImageWidth}
           </li>
           <li>{new Date(image.tags.CreateDate).toString()}</li>
-          <li><img src="https://goo.gl/kswJk6" alt=""/></li>
+          {version && (
+            <li class={style.copy} onClick={handleCopyClick}>
+              <Icon>content_copy</Icon>
+              <span class={style.copyTarget}>{version.url}</span>
+            </li>
+          )}
         </ul>
       </div>
     )

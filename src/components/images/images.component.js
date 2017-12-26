@@ -9,10 +9,9 @@ const {
   loadImages,
   loadImageVersion,
   removeSelection,
-  setControlSelect,
   setImage,
+  setImagesWidth,
   setSelecting,
-  setShiftSelect,
 } = mappedActions;
 
 // Preact Material
@@ -29,118 +28,70 @@ import spinnerSvg from '../../assets/svg/spinner.svg';
 // Components
 import ImageDetail from '../image-detail/imageDetail.component';
 
-function handleKeydown({ key }) {
-  if (key == 'Shift') setShiftSelect(true);
-  if (key == 'Control') setControlSelect(true);
-}
-
 function handleKeyup({ key }) {
   if (key == 'Escape') {
     setSelecting(false);
     clearSelection();
     setImage();
   }
-
-  if (key == 'Shift') setShiftSelect(false);
-  if (key == 'Control') setControlSelect(false);
 }
 
-@connect(({ images, image, selecting, selection, shiftSelect, controlSelect }) => ({
+@connect(({ images, imagesWidth, image, selecting, selection }) => ({
   images,
+  imagesWidth,
   image,
   selecting,
   selection,
-  shiftSelect,
-  controlSelect,
 }))
 export default class Images extends Component {
   componentWillMount() {
     loadImages();
-    window.document.addEventListener('keydown', handleKeydown);
     window.document.addEventListener('keyup', handleKeyup);
   }
 
-  componentWillUnmount() {
-    window.document.removeEventListener('keydown', handleKeydown);
-    window.document.removeEventListener('keyup', handleKeyup);
+  componentDidMount() {
+    this.handleResize();
+    this.__handleResize = this.handleResize.bind(this);
+    addEventListener('resize', this.__handleResize);
   }
 
-  render({ images, image, selecting, selection, shiftSelect, controlSelect }) {
-    const items = images.map(image => {
-      const id = image.__id;
-      const name = image.name.split('/').pop();
-      const height = 200;
-      const versionName = `x${height}`;
-      const version = (image.versions && image.versions[versionName]) || {};
-      const isSelected = selection.has(id);
+  componentWillUnmount() {
+    window.document.removeEventListener('keyup', handleKeyup);
+    removeEventListener('resize', this.__handleResize);
+  }
 
-      if (!version.url) {
-        loadImageVersion({ record: image.__id, height });
-      }
+  handleResize() {
+    setImagesWidth(this.base.offsetWidth);
+  }
 
-      return (
-        <li item-id={id} class={style.item} is-selected={isSelected} onClick={itemClick}>
-          <Icon className={`${style.icon}`} onClick={iconClick}>
-            done
-          </Icon>
-          <div class={style.description}>{name}</div>
-          <div class={style.image}>
-            <img src={version.url || spinnerSvg} alt={name} />
-          </div>
-        </li>
-      );
+  render({ images, imagesWidth, image, selecting, selection }) {
+    const itemClick = getItemClickHandler({
+      images,
+      base: this.base,
+      selection,
+      addSelection,
+      removeSelection,
+      setImage,
     });
-
-    function getId(el) {
-      const itemId = el.getAttribute('item-id');
-      if (itemId) {
-        return itemId;
-      } else if (el.parentElement) {
-        return getId(el.parentElement);
-      }
-    }
-
-    function iconClick(e) {
-      e.stopPropagation();
-      const id = getId(e.target);
-      const isSelected = selection.has(id);
-      if (!isSelected) {
-        addSelection(id);
-      } else {
-        if (selection.size <= 1) {
-          setSelecting(false);
-        }
-        removeSelection(id);
-      }
-    }
-
-    const base = this.base;
-    function itemClick(e) {
-      const id = getId(e.target);
-      const isSelected = selection.has(id);
-      if (controlSelect) {
-        if (!isSelected) {
-          addSelection(id);
-        } else {
-          removeSelection(id);
-        }
-      } else if (shiftSelect) {
-        const items = Array.from(base.querySelectorAll('li'));
-        const firstSelectedItemIndex = items.findIndex(item => item.getAttribute('is-selected'));
-        const clickedItemIndex = items.findIndex(item => item.getAttribute('item-id') == id);
-        const startIndex = Math.min(firstSelectedItemIndex, clickedItemIndex);
-        const endIndex = Math.max(firstSelectedItemIndex, clickedItemIndex);
-        const ids = items.slice(startIndex, endIndex + 1).map(item => item.getAttribute('item-id'));
-        addSelection(ids);
-      } else {
-        const image = images.find(image => image.__id == id);
-        setImage(image);
-      }
-    }
+    const iconClick = getIconClickHandler({
+      selection,
+      addSelection,
+      setSelecting,
+      removeSelection,
+    });
+    const gutter = 4;
+    const height = 200;
+    const defaultWidth = 200;
+    const decoratedImages = images
+      .map(image => addImageWidth({ image, height, defaultWidth }))
+      .map(image => addImageVersion({ image, height }));
+    const items = justifyWidths({ images: decoratedImages, gutter, imagesWidth }).map(image =>
+      getImageRow({ image, selection, loadImageVersion, itemClick, iconClick })
+    );
 
     return (
       <div>
-        <ImageDetail image={image} onClick={() => setSelecting(false)}/>
+        <ImageDetail image={image} onClick={() => setSelecting(false)} />
         <ul class={style.grid} selecting={selecting}>
           {items}
         </ul>
@@ -150,5 +101,147 @@ export default class Images extends Component {
         </Button>
       </div>
     );
+  }
+}
+
+function addImageWidth({ image, height, defaultWidth }) {
+  let width = defaultWidth;
+  image = { ...image };
+  if (image.tags) {
+    const { ImageHeight, ImageWidth } = image.tags;
+    if (ImageHeight && ImageWidth) {
+      width = height / (ImageHeight / ImageWidth);
+    }
+  }
+  image.width = width;
+  return image;
+}
+
+function addImageVersion({ height, image }) {
+  const versionName = `x${height}`;
+  const version = (image.versions && image.versions[versionName]) || {};
+  image = { ...image };
+  image.version = version;
+  return image;
+}
+
+function justifyWidths({ images, gutter, imagesWidth }) {
+  const rows = images.reduce(
+    (rows, { ...image }) => {
+      const lastRow = rows[rows.length - 1];
+      const cumulativeWidths = sumRowWidths(lastRow);
+      const lastRowWidth = gutter * lastRow.length + cumulativeWidths;
+      if (lastRowWidth < imagesWidth) {
+        lastRow.push(image);
+      } else {
+        rows.push([image]);
+      }
+      return rows;
+    },
+    [[]]
+  );
+  const adjustedRows = rows.map(row => {
+    const goalWidth = imagesWidth - row.length * gutter;
+    const totalWidth = sumRowWidths(row);
+    const difference = totalWidth - goalWidth;
+
+    if (difference > 0) {
+      row.forEach(image => {
+        const percentageOfRow = image.width / totalWidth;
+        image.width = image.width - difference * percentageOfRow;
+      });
+    } else {
+      row.push({ isGrower: true });
+    }
+
+    return row;
+  });
+  return adjustedRows.reduce((flat, row) => flat.concat(row), []);
+}
+
+function sumRowWidths(row) {
+  return row.reduce((sum, image) => sum + image.width, 0);
+}
+
+function getImageRow({ image, selection, loadImageVersion, itemClick, iconClick }) {
+  let li;
+  if (image.isGrower) {
+    li = <li class={style.grower} />;
+  } else {
+    const id = image.__id;
+    const name = image.name.split('/').pop();
+    const isSelected = selection.has(id);
+
+    if (!image.version.url) {
+      loadImageVersion({ record: image.__id, height });
+    }
+
+    li = (
+      <li item-id={id} class={style.item} is-selected={isSelected} onClick={itemClick}>
+        <Icon className={`${style.icon}`} onClick={iconClick}>
+          done
+        </Icon>
+        <div class={style.description}>{name}</div>
+        <div class={style.image}>
+          <div
+            class={style.img}
+            style={`background-image: url('${image.version.url ||
+              spinnerSvg}'); width: ${image.width || defaultWidth}px;`}
+          />
+        </div>
+      </li>
+    );
+  }
+  return li;
+}
+
+function getIconClickHandler({ selection, addSelection, setSelecting, removeSelection }) {
+  return e => {
+    e.stopPropagation();
+    const id = getId(e.target);
+    const isSelected = selection.has(id);
+    if (!isSelected) {
+      addSelection(id);
+    } else {
+      if (selection.size <= 1) {
+        setSelecting(false);
+      }
+      removeSelection(id);
+    }
+  };
+}
+
+function getItemClickHandler({ images, base, selection, addSelection, removeSelection, setImage }) {
+  return e => {
+    const id = getId(e.target);
+    const isSelected = selection.has(id);
+
+    if (e.ctrlKey) {
+      if (!isSelected) {
+        addSelection(id);
+      } else {
+        removeSelection(id);
+      }
+    } else if (e.shiftKey) {
+      const items = Array.from(base.querySelectorAll('li'));
+      const firstSelectedItemIndex = items.findIndex(item => item.getAttribute('is-selected'));
+      const clickedItemIndex = items.findIndex(item => item.getAttribute('item-id') == id);
+      const startIndex = Math.min(firstSelectedItemIndex, clickedItemIndex);
+      const endIndex = Math.max(firstSelectedItemIndex, clickedItemIndex);
+      const ids = items.slice(startIndex, endIndex + 1).map(item => item.getAttribute('item-id'));
+      addSelection(ids);
+    } else {
+      const image = images.find(image => image.__id == id);
+      setImage(image);
+    }
+  };
+}
+
+function getId(el) {
+  const itemId = el.getAttribute('item-id');
+  if (itemId) {
+    return itemId;
+  } else if (el.parentElement) {
+    return getId(el.parentElement);
   }
 }

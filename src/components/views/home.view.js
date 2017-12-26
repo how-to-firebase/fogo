@@ -7,7 +7,7 @@ import Images from "../images/images.component";
 
 export function HomeView() {
   return (
-    <div class={style.home} view="home">
+    <div id="home-view" class={style.home} view="home">
       <Images />
       <Link href="/upload">
         <Fab className={style.fab}>

@@ -8,8 +8,8 @@ export async function loadImages({ images, imagesAllLoaded, environment }) {
     .orderBy('CreateDate')
     .limit(3);
   const lastImage = images[images.length - 1] || {};
-  const lastName = lastImage.name;
-  const query = (lastName && collection.startAfter(lastName)) || collection;
+  const createDate = lastImage.CreateDate;
+  const query = (createDate && collection.startAfter(createDate)) || collection;
 
   return query.get().then(docs => {
     const results = [];

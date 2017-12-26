@@ -1,15 +1,18 @@
 .grid {
   display: flex;
+  justify-content: space-between;
   width: calc(100vw - 3rem);
   flex-wrap: wrap;
+  padding: 0;
 }
 
 .item {
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  margin: 4px;
+  margin: 4px 0;
   position: relative;
+  overflow: hidden;
 
   &:hover .description {
     display: block;
@@ -37,8 +40,11 @@
   min-height: 200px;
   user-select: none;
 
-  img {
+  .img {
     height: 200px;
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-color: #fafafa;
   }
 }
 
@@ -88,4 +94,8 @@
   .description {
     display: block;
   }
+}
+
+.grower {
+  flex-grow: 1;
 }

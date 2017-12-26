@@ -16,6 +16,10 @@ import Nav from './components/nav/nav.component';
 import Drawer from './components/drawer/drawer.component';
 import Guard from './components/guard/guard.component';
 
+// Preact Material Components
+import Snackbar from 'preact-material-components/Snackbar';
+import 'preact-material-components/Snackbar/style.css';
+
 // Views
 import { HomeView } from './components/views';
 
@@ -26,6 +30,12 @@ export default class Fogo extends Component {
 
   componentWillMount() {
     this.registerOnAuthStateChanged();
+
+    addEventListener('alert', e =>
+      this.snackbar.MDComponent.show({
+        message: e.detail,
+      })
+    );
   }
 
   componentDidMount() {
@@ -55,6 +65,7 @@ export default class Fogo extends Component {
           <Guard />
           <Nav />
           <Drawer />
+          <Snackbar ref={snackbar => (this.snackbar = snackbar)} style="z-index: 1000;" />
           <div class="full-height router-wrapper">
             <Router>
               <FirebaseAuthentication google path="/login" />
@@ -75,6 +86,6 @@ export default class Fogo extends Component {
 
   handlePath({ matches, path, url }) {
     const { path: laggedPath } = store.getState();
-    store.setState({ laggedPath, path }); 
+    store.setState({ laggedPath, path });
   }
 }

@@ -24,7 +24,6 @@
     "firebase-admin": "~5.4.2",
     "firebase-functions": "^0.7.1",
     "fs": "^0.0.1-security",
-    "google-url": "^0.0.4",
     "path": "^0.12.7",
     "request": "^2.83.0"
   },
