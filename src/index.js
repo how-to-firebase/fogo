@@ -60,7 +60,7 @@ export default class Fogo extends Component {
 
     return (
       <Provider store={store}>
-        <div>
+        <div id="app-wrapper">
           <Match>{this.handlePath}</Match>
           <Guard />
           <Nav />

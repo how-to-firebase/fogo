@@ -24,6 +24,7 @@ import 'preact-material-components/Icon/style.css';
 
 // Svg
 import spinnerSvg from '../../assets/svg/spinner.svg';
+import threeDotsSvg from '../../assets/svg/three-dots.svg';
 
 // Components
 import ImageDetail from '../image-detail/imageDetail.component';
@@ -36,6 +37,27 @@ function handleKeyup({ key }) {
   }
 }
 
+let handleScrollTimer;
+let loadingButton;
+function handleScroll(e) {
+  if (handleScrollTimer) {
+    clearTimeout(handleScrollTimer);
+  }
+
+  handleScrollTimer = setTimeout(() => {
+    const scroll = window.document.body.parentElement.scrollTop;
+    const top = loadingButton.base.getBoundingClientRect().top;
+    const viewportHeight = window.visualViewport.height;    
+
+    loadingButton.base.style.visibility = scroll && 'visible' || '';
+
+    if (scroll && top < viewportHeight) {
+      // Hide and do not load images if imagesAllLoaded  == true... but there's a scope issue!
+      loadImages();
+    }
+  }, 500);
+}
+
 @connect(({ images, imagesWidth, image, selecting, selection }) => ({
   images,
   imagesWidth,
@@ -45,8 +67,9 @@ function handleKeyup({ key }) {
 }))
 export default class Images extends Component {
   componentWillMount() {
-    loadImages();
+    loadImages(50);
     window.document.addEventListener('keyup', handleKeyup);
+    window.document.addEventListener('scroll', handleScroll);
   }
 
   componentDidMount() {
@@ -57,6 +80,7 @@ export default class Images extends Component {
 
   componentWillUnmount() {
     window.document.removeEventListener('keyup', handleKeyup);
+    window.document.removeEventListener('scroll', handleScroll);
     removeEventListener('resize', this.__handleResize);
   }
 
@@ -86,7 +110,7 @@ export default class Images extends Component {
       .map(image => addImageWidth({ image, height, defaultWidth }))
       .map(image => addImageVersion({ image, height }));
     const items = justifyWidths({ images: decoratedImages, gutter, imagesWidth }).map(image =>
-      getImageRow({ image, selection, loadImageVersion, itemClick, iconClick })
+      getImageRow({ image, selection, height, loadImageVersion, itemClick, iconClick })
     );
 
     return (
@@ -96,8 +120,8 @@ export default class Images extends Component {
           {items}
         </ul>
 
-        <Button className={style.loadMore} onClick={loadImages}>
-          Load More
+        <Button ref={ref => loadingButton = ref} className={style.loadMore} onClick={loadImages}>
+          <img src={threeDotsSvg} alt="Loading..."/>
         </Button>
       </div>
     );
@@ -163,7 +187,7 @@ function sumRowWidths(row) {
   return row.reduce((sum, image) => sum + image.width, 0);
 }
 
-function getImageRow({ image, selection, loadImageVersion, itemClick, iconClick }) {
+function getImageRow({ image, selection, height, loadImageVersion, itemClick, iconClick }) {
   let li;
   if (image.isGrower) {
     li = <li style={`width: ${image.width}px;`} />;

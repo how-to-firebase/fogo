@@ -1,4 +1,8 @@
 .mdc-toolbar {
+  opacity: .9;
+  position: fixed !important;
+  z-index: 1;
+
   .mdc-toolbar__section {
     align-items: center;
   }

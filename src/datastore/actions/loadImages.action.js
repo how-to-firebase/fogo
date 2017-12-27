@@ -1,12 +1,10 @@
-import { setImages } from '..';
-
-export async function loadImages({ images, imagesAllLoaded, environment }) {
+export async function loadImages({ images, imagesAllLoaded, environment }, limit = 10) {
   const uploads = environment.collections.uploads;
   const collection = window.firebase
     .firestore()
     .collection(uploads)
     .orderBy('CreateDate')
-    .limit(3);
+    .limit(limit);
   const lastImage = images[images.length - 1] || {};
   const createDate = lastImage.CreateDate;
   const query = (createDate && collection.startAfter(createDate)) || collection;

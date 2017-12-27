@@ -11,6 +11,7 @@ const store = createStore({
   laggedPath: null,
   laggedCurrentUser: null,
   listState: null,
+  imagesObserver: null,
   path: null,
   selecting: false,
   selection: new Set(),

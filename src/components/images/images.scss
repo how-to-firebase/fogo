@@ -42,7 +42,7 @@
 
   .img {
     height: 200px;
-    background-position: center top;
+    background-position: center center;
     background-repeat: no-repeat;
     background-color: #fafafa;
   }
@@ -68,8 +68,11 @@
 }
 
 .loadMore {
+  background: var(--mdc-theme-primary) !important;
+  padding: 14px 1rem 3rem;
   display: block !important;
-  margin: auto;
+  margin: 1rem auto;
+  visibility: hidden;
 }
 
 .grid {

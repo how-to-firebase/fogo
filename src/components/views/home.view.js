@@ -9,8 +9,8 @@ export function HomeView() {
   return (
     <div id="home-view" class={style.home} view="home">
       <Images />
-      <Link href="/upload">
-        <Fab className={style.fab}>
+      <Link href="/upload" class={style.fab}>
+        <Fab>
           <Fab.Icon>add</Fab.Icon>
         </Fab>
       </Link>
