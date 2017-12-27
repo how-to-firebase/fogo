@@ -151,7 +151,7 @@ function justifyWidths({ images, gutter, imagesWidth }) {
         image.width = image.width - difference * percentageOfRow;
       });
     } else {
-      row.push({ isGrower: true });
+      row.push({ isGrower: true, width: -1 * difference });
     }
 
     return row;
@@ -166,7 +166,7 @@ function sumRowWidths(row) {
 function getImageRow({ image, selection, loadImageVersion, itemClick, iconClick }) {
   let li;
   if (image.isGrower) {
-    li = <li class={style.grower} />;
+    li = <li style={`width: ${image.width}px;`} />;
   } else {
     const id = image.__id;
     const name = image.name.split('/').pop();
