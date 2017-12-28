@@ -317,9 +317,9 @@
   version "0.0.32"
   resolved "https://registry.yarnpkg.com/@types/tmp/-/tmp-0.0.32.tgz#0d3cb31022f8427ea58c008af32b80da126ca4e3"
 
-"SuperTinyIcons@git+https://github.com/edent/SuperTinyIcons.git":
+"SuperTinyIcons@https://github.com/edent/SuperTinyIcons.git":
   version "0.0.0"
-  resolved "git+https://github.com/edent/SuperTinyIcons.git#6438f6f2ee6b322269f5fe1c004e653fe30d3f87"
+  resolved "https://github.com/edent/SuperTinyIcons.git#6438f6f2ee6b322269f5fe1c004e653fe30d3f87"
 
 abab@^1.0.3:
   version "1.0.4"
@@ -7178,9 +7178,9 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
 
-"simple-country-dial-codes@git+https://github.com/xxxdepy/simple-country-dial-codes.git":
+"simple-country-dial-codes@https://github.com/xxxdepy/simple-country-dial-codes.git":
   version "0.0.0"
-  resolved "git+https://github.com/xxxdepy/simple-country-dial-codes.git#b5068a1ef09ad06672373b9823522fba4c74b1bb"
+  resolved "https://github.com/xxxdepy/simple-country-dial-codes.git#4acc401a51ed2aabf94d6571c95df55c8e6c589f"
 
 simplehttp2server@^2.0.0:
   version "2.0.0"

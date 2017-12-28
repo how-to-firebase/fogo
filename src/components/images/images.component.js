@@ -29,37 +29,9 @@ import threeDotsSvg from '../../assets/svg/three-dots.svg';
 // Components
 import ImageDetail from '../image-detail/imageDetail.component';
 
-function handleKeyup({ key }) {
-  if (key == 'Escape') {
-    setSelecting(false);
-    clearSelection();
-    setImage();
-  }
-}
-
-let handleScrollTimer;
-let loadingButton;
-function handleScroll(e) {
-  if (handleScrollTimer) {
-    clearTimeout(handleScrollTimer);
-  }
-
-  handleScrollTimer = setTimeout(() => {
-    const scroll = window.document.body.parentElement.scrollTop;
-    const top = loadingButton.base.getBoundingClientRect().top;
-    const viewportHeight = window.visualViewport.height;    
-
-    loadingButton.base.style.visibility = scroll && 'visible' || '';
-
-    if (scroll && top < viewportHeight) {
-      // Hide and do not load images if imagesAllLoaded  == true... but there's a scope issue!
-      loadImages();
-    }
-  }, 500);
-}
-
-@connect(({ images, imagesWidth, image, selecting, selection }) => ({
+@connect(({ images, imagesAllLoaded, imagesWidth, image, selecting, selection }) => ({
   images,
+  imagesAllLoaded,
   imagesWidth,
   image,
   selecting,
@@ -67,9 +39,11 @@ function handleScroll(e) {
 }))
 export default class Images extends Component {
   componentWillMount() {
-    loadImages(50);
+    const { pageSize } = this.props;
+    loadImages(pageSize);
+    this.__handleScroll = getHandleScroll({ store, pageSize });
     window.document.addEventListener('keyup', handleKeyup);
-    window.document.addEventListener('scroll', handleScroll);
+    window.document.addEventListener('scroll', this.__handleScroll);
   }
 
   componentDidMount() {
@@ -80,7 +54,7 @@ export default class Images extends Component {
 
   componentWillUnmount() {
     window.document.removeEventListener('keyup', handleKeyup);
-    window.document.removeEventListener('scroll', handleScroll);
+    window.document.removeEventListener('scroll', this.__handleScroll);
     removeEventListener('resize', this.__handleResize);
   }
 
@@ -88,7 +62,7 @@ export default class Images extends Component {
     setImagesWidth(this.base.offsetWidth);
   }
 
-  render({ images, imagesWidth, image, selecting, selection }) {
+  render({ images, imagesAllLoaded, imagesWidth, image, selecting, selection }) {
     const itemClick = getItemClickHandler({
       images,
       base: this.base,
@@ -113,19 +87,57 @@ export default class Images extends Component {
       getImageRow({ image, selection, height, loadImageVersion, itemClick, iconClick })
     );
 
+    let loadingButton;
     return (
       <div>
         <ImageDetail image={image} onClick={() => setSelecting(false)} />
         <ul class={style.grid} selecting={selecting}>
           {items}
         </ul>
-
-        <Button ref={ref => loadingButton = ref} className={style.loadMore} onClick={loadImages}>
-          <img src={threeDotsSvg} alt="Loading..."/>
+        <Button
+          id="loading-button"
+          className={style.loadMore}
+          onClick={loadImages}
+          style={imagesAllLoaded && 'visibility: hidden;'}
+        >
+          <img src={threeDotsSvg} alt="Loading..." />
         </Button>
       </div>
     );
   }
+}
+
+function handleKeyup({ key }) {
+  if (key == 'Escape') {
+    setSelecting(false);
+    clearSelection();
+    setImage();
+  }
+}
+
+function getHandleScroll({ store, pageSize }) {
+  let handleScrollTimer;
+
+  return e => {
+    if (handleScrollTimer) {
+      clearTimeout(handleScrollTimer);
+    }
+
+    const { imagesAllLoaded } = store.getState();
+    if (!imagesAllLoaded) {
+      handleScrollTimer = setTimeout(() => {
+        const loadingButton = window.document.getElementById('loading-button');
+        const scroll = window.document.body.parentElement.scrollTop;
+        const top = loadingButton.getBoundingClientRect().top;
+        const viewportHeight = window.visualViewport.height;
+        const shouldShowLoader = !!scroll;
+
+        if (shouldShowLoader && top < viewportHeight) {
+          loadImages(pageSize);
+        }
+      }, 500);
+    }
+  };
 }
 
 function addImageWidth({ image, height, defaultWidth }) {

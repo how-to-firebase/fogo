@@ -4,7 +4,7 @@ export async function loadImages({ images, imagesAllLoaded, environment }, limit
     .firestore()
     .collection(uploads)
     .orderBy('CreateDate')
-    .limit(limit);
+    .limit(+limit);
   const lastImage = images[images.length - 1] || {};
   const createDate = lastImage.CreateDate;
   const query = (createDate && collection.startAfter(createDate)) || collection;
