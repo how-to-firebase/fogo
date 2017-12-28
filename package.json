@@ -33,6 +33,7 @@
   "dependencies": {
     "@quiver/firebase-authentication": "^0.0.2",
     "@quiver/storage-uploader": "^0.0.2",
+    "@reactivex/rxjs": "^5.5.3",
     "node-sass": "^4.7.2",
     "preact": "^8.2.1",
     "preact-compat": "^3.17.0",

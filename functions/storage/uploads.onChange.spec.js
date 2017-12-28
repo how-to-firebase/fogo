@@ -36,6 +36,7 @@ describe('uploadsOnChange', () => {
     fn({ data: { name, resourceState: 'exists', md5Hash: 'not-a-hash' } }).then(result => {
       expect(result.name).toEqual(name);
       expect(result.isTest).toEqual(true);
+      expect(result.environment).toEqual('test-bypass');
       done();
     });
   });

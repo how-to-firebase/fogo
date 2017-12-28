@@ -11,6 +11,8 @@ function evaluatePath({ path, laggedPath, currentUser }) {
     route('/login');
   } else if (isOAuthRedirect) {
     route(laggedPath || '/');
+  } else if (path == '/') {
+    route('/images');
   }
 }
 

@@ -69,7 +69,7 @@ export default class Fogo extends Component {
           <div class="full-height router-wrapper">
             <Router>
               <FirebaseAuthentication google path="/login" />
-              <HomeView path="/" />
+              <HomeView path="/images" environment={environment}/>
               <div path="/play">Path: /play</div>
               <StorageUploader
                 path="/upload"

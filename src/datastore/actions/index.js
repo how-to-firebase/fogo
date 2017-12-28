@@ -1,3 +1,4 @@
+export * from './addImage.action';
 export * from './addSelection.action';
 export * from './clearSelection.action';
 export * from './deleteSelection.action';

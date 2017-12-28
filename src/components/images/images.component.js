@@ -2,8 +2,10 @@ import { Component } from 'preact';
 import style from './images.scss';
 import { connect } from 'unistore';
 import { store, actions, mappedActions } from '../../datastore';
+import { imagesObserver } from '../../observers';
 
 const {
+  addImage,
   addSelection,
   clearSelection,
   loadImages,
@@ -39,11 +41,13 @@ import ImageDetail from '../image-detail/imageDetail.component';
 }))
 export default class Images extends Component {
   componentWillMount() {
-    const { pageSize } = this.props;
+    const { environment, pageSize } = this.props;
     loadImages(pageSize);
     this.__handleScroll = getHandleScroll({ store, pageSize });
     window.document.addEventListener('keyup', handleKeyup);
     window.document.addEventListener('scroll', this.__handleScroll);
+
+    this.__imagesSubscription = imagesObserver({ environment }).subscribe(addImage);
   }
 
   componentDidMount() {
@@ -56,6 +60,7 @@ export default class Images extends Component {
     window.document.removeEventListener('keyup', handleKeyup);
     window.document.removeEventListener('scroll', this.__handleScroll);
     removeEventListener('resize', this.__handleResize);
+    this.__imagesSubscription.unsubscribe();
   }
 
   handleResize() {

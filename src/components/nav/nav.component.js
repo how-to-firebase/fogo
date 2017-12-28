@@ -10,8 +10,8 @@ import 'preact-material-components/Button/style.css';
 import 'preact-material-components/Icon/style.css';
 import 'preact-material-components/Toolbar/style.css';
 
-export default connect('showMenu,selection', actions)(
-  ({ showMenu, selection, toggleMenu, deleteSelection, addSelectionToGallery }) => (
+export default connect('showMenu,path,selection', actions)(
+  ({ showMenu, path, selection, toggleMenu, deleteSelection, addSelectionToGallery }) => (
     <Toolbar className={style['mdc-toolbar']}>
       <Toolbar.Row>
         <Toolbar.Section align-start={true} className={style['mdc-toolbar__section']}>
@@ -19,7 +19,7 @@ export default connect('showMenu,selection', actions)(
             menu
           </Toolbar.Icon>
           <Toolbar.Title className={style['mdc-toolbar__title']}>Fogo</Toolbar.Title>
-          {!!selection.size && (
+          {path == '/images' && !!selection.size && (
             <div class={style.actions}>
               <Icon className={style.icon} onClick={addSelectionToGallery}>
                 add

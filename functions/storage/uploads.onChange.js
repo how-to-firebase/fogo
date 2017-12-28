@@ -15,7 +15,7 @@ module.exports = ({ environment }) => event => {
     return resourceState == 'not_exists'
       ? deleteFile(admin, doc)
       : getExif(file)
-          .then(exif => getPayload(event.data, environment.env, exif))
+          .then(exif => getPayload(event.data, environment.env, exif, path))
           .then(payload => doc.set(payload, { merge: true }).then(() => payload));
   }
 };
@@ -51,8 +51,8 @@ function getExif(file) {
     return exif;
   });
 }
-function getPayload(data, env, exif) {
-  const payload = Object.assign(data, env);
+function getPayload(data, env, exif, path) {
+  const payload = Object.assign(data, env, { environment: path[0], created: Date.now() });
   return mergeExif(payload, exif);
 }
 
