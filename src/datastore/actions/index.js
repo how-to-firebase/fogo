@@ -3,7 +3,6 @@ export * from './addImages.action';
 export * from './addSelection.action';
 export * from './clearSelection.action';
 export * from './deleteSelection.action';
-export * from './loadImages.action';
 export * from './loadImageVersion.action';
 export * from './removeSelection.action';
 export * from './setImage.action';

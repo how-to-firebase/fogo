@@ -10,7 +10,6 @@ const {
   addImages,
   addSelection,
   clearSelection,
-  loadImages,
   loadImageVersion,
   removeSelection,
   setImage,
@@ -48,8 +47,8 @@ export default class Images extends Component {
     const { environment, pageSize } = this.props;
 
     this.__debouncedEvaluateLoadingButton = debounce(() => {
-      const { environment, images, imagesAllLoaded } = store.getState();
-      
+      const { images, imagesAllLoaded } = store.getState();
+
       if (!imagesAllLoaded) {
         evaluateLoadingButtonPosition({ pageSize, environment, images });
       }
@@ -125,7 +124,6 @@ export default class Images extends Component {
         <Button
           id="loading-button"
           className={style.loadMore}
-          onClick={loadImages}
           style={imagesAllLoaded && 'visibility: hidden;'}
         >
           <img src={threeDotsSvg} alt="Loading..." />
@@ -237,7 +235,11 @@ function getImageRow({ image, selection, height, loadImageVersion, itemClick, ic
     const isSelected = selection.has(id);
 
     if (typeof image.version.url == 'undefined') {
-      loadImageVersion({ record: image.__id, height });
+      // Convert loadImageVersion into a query
+      // Loading a bunch of images is causing thrashing, because the state ovewrite is inconsistent
+      // loadImageVersion needs to get the image, return the image, and then something else needs to
+      // do a synchronous overwrite
+      // loadImageVersion({ record: image.__id, height });
     }
 
     li = (
