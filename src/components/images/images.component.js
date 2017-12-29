@@ -3,15 +3,18 @@ import style from './images.scss';
 import { connect } from 'unistore';
 import { store, actions, mappedActions } from '../../datastore';
 import { imagesObserver } from '../../observers';
+import { imageQuery, imagesQuery } from '../../queries';
 
 const {
   addImage,
+  addImages,
   addSelection,
   clearSelection,
   loadImages,
   loadImageVersion,
   removeSelection,
   setImage,
+  setImagesAllLoaded,
   setImagesWidth,
   setSelecting,
 } = mappedActions;
@@ -31,23 +34,40 @@ import threeDotsSvg from '../../assets/svg/three-dots.svg';
 // Components
 import ImageDetail from '../image-detail/imageDetail.component';
 
-@connect(({ images, imagesAllLoaded, imagesWidth, image, selecting, selection }) => ({
+@connect(({ images, imagesAllLoaded, imagesWidth, image, selecting, selection, timestamp }) => ({
   images,
   imagesAllLoaded,
   imagesWidth,
   image,
   selecting,
   selection,
+  timestamp,
 }))
 export default class Images extends Component {
   componentWillMount() {
     const { environment, pageSize } = this.props;
-    loadImages(pageSize);
-    this.__handleScroll = getHandleScroll({ store, pageSize });
+
+    this.__debouncedEvaluateLoadingButton = debounce(() => {
+      const { environment, images, imagesAllLoaded } = store.getState();
+      
+      if (!imagesAllLoaded) {
+        evaluateLoadingButtonPosition({ pageSize, environment, images });
+      }
+    }, 500);
+
+    this.__handleScroll = this.__debouncedEvaluateLoadingButton;
     window.document.addEventListener('keyup', handleKeyup);
     window.document.addEventListener('scroll', this.__handleScroll);
 
-    this.__imagesSubscription = imagesObserver({ environment }).subscribe(addImage);
+    const mountTimestamp = Date.now();
+    this.__imagesSubscription = imagesObserver({ environment }).subscribe(
+      async ({ __id, value }) => {
+        if (value > mountTimestamp) {
+          const image = await imageQuery(environment, __id);
+          addImage(image);
+        }
+      }
+    );
   }
 
   componentDidMount() {
@@ -61,6 +81,10 @@ export default class Images extends Component {
     window.document.removeEventListener('scroll', this.__handleScroll);
     removeEventListener('resize', this.__handleResize);
     this.__imagesSubscription.unsubscribe();
+  }
+
+  componentDidUpdate() {
+    this.__debouncedEvaluateLoadingButton();
   }
 
   handleResize() {
@@ -92,7 +116,6 @@ export default class Images extends Component {
       getImageRow({ image, selection, height, loadImageVersion, itemClick, iconClick })
     );
 
-    let loadingButton;
     return (
       <div>
         <ImageDetail image={image} onClick={() => setSelecting(false)} />
@@ -112,6 +135,17 @@ export default class Images extends Component {
   }
 }
 
+function debounce(fn, millis) {
+  let timer;
+
+  return () => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(fn, millis);
+  };
+}
+
 function handleKeyup({ key }) {
   if (key == 'Escape') {
     setSelecting(false);
@@ -120,29 +154,18 @@ function handleKeyup({ key }) {
   }
 }
 
-function getHandleScroll({ store, pageSize }) {
-  let handleScrollTimer;
+async function evaluateLoadingButtonPosition({ pageSize: limit, environment, images }) {
+  const loadingButton = window.document.getElementById('loading-button');
+  const scroll = window.document.body.parentElement.scrollTop;
+  const top = loadingButton.getBoundingClientRect().top;
+  const viewportHeight = window.visualViewport.height;
 
-  return e => {
-    if (handleScrollTimer) {
-      clearTimeout(handleScrollTimer);
-    }
-
-    const { imagesAllLoaded } = store.getState();
-    if (!imagesAllLoaded) {
-      handleScrollTimer = setTimeout(() => {
-        const loadingButton = window.document.getElementById('loading-button');
-        const scroll = window.document.body.parentElement.scrollTop;
-        const top = loadingButton.getBoundingClientRect().top;
-        const viewportHeight = window.visualViewport.height;
-        const shouldShowLoader = !!scroll;
-
-        if (shouldShowLoader && top < viewportHeight) {
-          loadImages(pageSize);
-        }
-      }, 500);
-    }
-  };
+  if (top < viewportHeight) {
+    const cursor = images[images.length - 1];
+    const { results, imagesAllLoaded } = await imagesQuery({ environment, cursor, limit });
+    addImages(results);
+    setImagesAllLoaded(imagesAllLoaded);
+  }
 }
 
 function addImageWidth({ image, height, defaultWidth }) {
@@ -213,7 +236,7 @@ function getImageRow({ image, selection, height, loadImageVersion, itemClick, ic
     const name = image.name.split('/').pop();
     const isSelected = selection.has(id);
 
-    if (!image.version.url) {
+    if (typeof image.version.url == 'undefined') {
       loadImageVersion({ record: image.__id, height });
     }
 
@@ -259,7 +282,8 @@ function getItemClickHandler({ images, base, selection, addSelection, removeSele
 
     if (e.ctrlKey) {
       if (!isSelected) {
-        addSelection(id);
+        addSelect
+        ion(id);
       } else {
         removeSelection(id);
       }

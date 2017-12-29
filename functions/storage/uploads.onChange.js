@@ -9,24 +9,35 @@ module.exports = ({ environment }) => event => {
     return Promise.resolve({ skipped: true });
   } else {
     const admin = adminUtil(environment);
-    const doc = getDoc(admin, environment, md5Hash);
+    const { doc, ref } = getDocAndRef(admin, environment, md5Hash);
     const file = getFile(admin, name);
 
     return resourceState == 'not_exists'
-      ? deleteFile(admin, doc)
+      ? deleteFile(admin, doc, ref)
       : getExif(file)
           .then(exif => getPayload(event.data, environment.env, exif, path))
-          .then(payload => doc.set(payload, { merge: true }).then(() => payload));
+          .then(payload =>
+            doc
+              .set(payload, { merge: true })
+              .then(() => ref.set(Date.now()))
+              .then(() => payload)
+          );
   }
 };
 
-function getDoc(admin, environment, md5Hash) {
+function getDocAndRef(admin, environment, md5Hash) {
   const uploads = collectionsUtil(environment).get('uploads');
   const { nodeEnv } = environment;
-  return admin
+  const doc = admin
     .firestore()
     .collection(uploads)
     .doc(`${nodeEnv}-${md5Hash}`);
+  const ref = admin
+    .database()
+    .ref(nodeEnv)
+    .child(uploads)
+    .child(md5Hash);
+  return { doc, ref };
 }
 
 function getFile(admin, name) {
@@ -61,12 +72,12 @@ function mergeExif(payload, exif) {
   let merged = payload;
 
   if (tags && tags.CreateDate) {
-    merged = Object.assign({ CreateDate: tags.CreateDate, tags }, payload);
+    merged = Object.assign({ CreateDate: tags.CreateDate || Date.now(), tags }, payload);
   }
   return merged;
 }
 
-function deleteFile(admin, doc) {
+function deleteFile(admin, doc, ref) {
   return doc
     .get()
     .then(doc => {
@@ -87,5 +98,5 @@ function deleteFile(admin, doc) {
       console.error(error);
       return true;
     })
-    .then(() => doc.delete());
+    .then(() => Promise.all([doc.delete(), ref.remove()]));
 }

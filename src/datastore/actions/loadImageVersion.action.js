@@ -1,3 +1,5 @@
+const axios = require('axios');
+
 export async function loadImageVersion({ images, image, environment }, { record, width, height }) {
   const versionType = (width && 'width') || 'height';
   const versionName = (height && `x${height}`) || width || 'original';
@@ -7,28 +9,23 @@ export async function loadImageVersion({ images, image, environment }, { record,
     imageUrl += `&${versionType}=${width || height}`;
   }
 
-  images = images.slice(0);
+  images.slice(0);
 
-  return fetch(imageUrl)
-    .then(res => {
-      let response;
-      if (!res.body) {
-        response = Promise.reject('res.body missing');
-      } else {
-        response = res.body.getReader().read();
-      }
-      return response;
-    })
-    .then(({ value }) => {
-      const url = new TextDecoder().decode(value);
-      const imageToPatch = images.find(image => image.__id == record);
-      imageToPatch.versions = { ...imageToPatch.versions, [versionName]: { url } };
+  const { data: url } = await axios.get(imageUrl);
+  const imageIndex = images.findIndex(image => image.__id == record);
+  const clone = { ...images[imageIndex] };
+  clone.versions = { ...clone.versions, [versionName]: { url } };
 
-      if (image && image.__id == record) {
-        image = { ...imageToPatch };
-      }
+  if (!clone.versions[versionName].url) {
+    console.error('url missing!', url);
+    clone.versions[versionName].url = null;
+  }
 
-      return { images, image };
-    })
-    .catch(error => console.log('error', error));
+  if (image && image.__id == record) {
+    image = { ...clone };
+  }
+
+  images[imageIndex] = clone;
+
+  return { images, image, timestamp: Date.now() };
 }

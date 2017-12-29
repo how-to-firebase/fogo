@@ -38,6 +38,10 @@ module.exports = ({ environment }) => (req, res) => {
         res.status(200);
         res.send(version.url);
         return version;
+      })
+      .catch(error => {
+        console.log('error', error);
+        return Promise.reject(error);
       });
   }
 };
@@ -104,11 +108,16 @@ function createNewVersion(admin, shorten, doc, { width, height }) {
     })
     .then(file => getSignedUrl(file).then(url => ({ url, name: file.name })))
     .then(({ url, name }) => {
-      return shorten(url).then(shortUrl => ({
-        url,
-        name,
-        shortUrl,
-      }));
+      return shorten(url)
+        .catch(error => {
+          console.log('GoogleUrl error', error);
+          return null;
+        })
+        .then(shortUrl => ({
+          url,
+          name,
+          shortUrl,
+        }));
     })
     .then(version => saveDoc(doc, versionName, version));
 }

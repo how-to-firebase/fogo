@@ -8,7 +8,6 @@ import spinnerSvg from '../../assets/svg/spinner.svg';
 import Icon from 'preact-material-components/Icon';
 
 export default function imageDetail({ image }) {
-  console.log('image', image);
   const versionName = 'original';
   const { versions } = image || {};
   const version = versions && versions[versionName];

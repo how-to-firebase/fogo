@@ -6,9 +6,11 @@ export async function deleteSelection({ selection, images }) {
   const refs = names.map(name => ref.child(name));
   const filteredImages = images.filter(image => !selection.has(image.__id));
 
-  return Promise.all(refs.map(ref => ref.delete())).then(() => ({
+  await Promise.all(refs.map(ref => ref.delete()));
+
+  return {
     images: filteredImages,
     selection: new Set(),
-    selecting: false
-  }));
+    selecting: false,
+  };
 }

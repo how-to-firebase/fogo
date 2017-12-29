@@ -1,6 +1,4 @@
-{
-  "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
-  }
+path /production/uploads {
+  read() { auth != null }
+  index() { ['.value'] }
 }
