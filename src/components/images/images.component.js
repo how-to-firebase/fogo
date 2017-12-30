@@ -3,14 +3,13 @@ import style from './images.scss';
 import { connect } from 'unistore';
 import { store, actions, mappedActions } from '../../datastore';
 import { imagesObserver } from '../../observers';
-import { imageQuery, imagesQuery } from '../../queries';
+import { imageQuery, imagesQuery, imageVersionQuery } from '../../queries';
 
 const {
   addImage,
   addImages,
   addSelection,
   clearSelection,
-  loadImageVersion,
   removeSelection,
   setImage,
   setImagesAllLoaded,
@@ -112,8 +111,20 @@ export default class Images extends Component {
       .map(image => addImageWidth({ image, height, defaultWidth }))
       .map(image => addImageVersion({ image, height }));
     const items = justifyWidths({ images: decoratedImages, gutter, imagesWidth }).map(image =>
-      getImageRow({ image, selection, height, loadImageVersion, itemClick, iconClick })
+      getImageRow({ image, selection, height, itemClick, iconClick })
     );
+
+    // Run imageVersionQuery for all items that are missing it.
+    items.forEach(image => {
+      if (typeof image.version.url == 'undefined') {
+        // Convert loadImageVersion into a query
+        // It's now called imageVersionQuery
+        // Loading a bunch of images is causing thrashing, because the state ovewrite is inconsistent
+        // loadImageVersion needs to get the image, return the image, and then something else needs to
+        // do a synchronous overwrite
+        // loadImageVersion({ record: image.__id, height });
+      }
+    });
 
     return (
       <div>
@@ -225,7 +236,7 @@ function sumRowWidths(row) {
   return row.reduce((sum, image) => sum + image.width, 0);
 }
 
-function getImageRow({ image, selection, height, loadImageVersion, itemClick, iconClick }) {
+function getImageRow({ image, selection, height, itemClick, iconClick }) {
   let li;
   if (image.isGrower) {
     li = <li style={`width: ${image.width}px;`} />;
@@ -233,14 +244,6 @@ function getImageRow({ image, selection, height, loadImageVersion, itemClick, ic
     const id = image.__id;
     const name = image.name.split('/').pop();
     const isSelected = selection.has(id);
-
-    if (typeof image.version.url == 'undefined') {
-      // Convert loadImageVersion into a query
-      // Loading a bunch of images is causing thrashing, because the state ovewrite is inconsistent
-      // loadImageVersion needs to get the image, return the image, and then something else needs to
-      // do a synchronous overwrite
-      // loadImageVersion({ record: image.__id, height });
-    }
 
     li = (
       <li item-id={id} class={style.item} is-selected={isSelected} onClick={itemClick}>
@@ -284,7 +287,7 @@ function getItemClickHandler({ images, base, selection, addSelection, removeSele
 
     if (e.ctrlKey) {
       if (!isSelected) {
-        addSelect
+        addSelect;
         ion(id);
       } else {
         removeSelection(id);
