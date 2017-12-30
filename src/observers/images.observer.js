@@ -2,16 +2,18 @@ import { Observable } from 'rxjs/Observable';
 
 export function imagesObserver({ environment }) {
   return Observable.create(observer => {
-    const uploads = environment.collections.uploads;
-    const collection = window.firebase
-      .firestore()
-      .collection(uploads)
-      .where('environment', '==', environment.environment)
-      .orderBy('created', 'desc')
-      .limit(1);
+    const { functionsEnvironment, collections } = environment;
+    const ref = window.firebase
+      .database()
+      .ref(functionsEnvironment)
+      .child(collections.uploads)
+      .orderByValue()
+      .limitToLast(1);
 
-    return collection.onSnapshot(docs =>
-      docs.forEach(doc => observer.next({ __id: doc.id, ...doc.data() }))
+    const handler = ref.on('child_added', snapshot =>
+      observer.next({ __id: `${functionsEnvironment}-${snapshot.key}`, value: snapshot.val() })
     );
+
+    return () => ref.off('child_added', handler);
   });
 }

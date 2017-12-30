@@ -15,6 +15,7 @@ const store = createStore({
   path: null,
   selecting: false,
   selection: new Set(),
+  timestamp: Date.now()
 });
 
 const actions = store => rawActions;

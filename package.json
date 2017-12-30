@@ -47,8 +47,5 @@
       "src"
     ]
   },
-  "workspaces": [
-    "../../quiver/packages"
-  ],
   "private": true
 }
