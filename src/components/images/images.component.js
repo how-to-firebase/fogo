@@ -199,7 +199,6 @@ async function evaluateLoadingButtonPosition({ pageSize: limit, environment, ima
     results.forEach(image =>
       loadImageVersionIfNecessary({ environment, image, versionName: VERSION_NAME })
     );
-    console.log('images.versions', images.versions);
   }
 }
 

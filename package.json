@@ -28,14 +28,17 @@
     "eslint-config-synacor": "^1.1.0",
     "if-env": "^1.0.0",
     "jest": "^21.2.1",
-    "preact-cli": "^2.0.0"
+    "preact-cli": "^2.0.0",
+    "uglifyjs-webpack-plugin": "^1.1.5"
   },
   "dependencies": {
     "@quiver/firebase-authentication": "^0.0.2",
     "@quiver/storage-uploader": "^0.0.2",
     "@reactivex/rxjs": "^5.5.3",
+    "axios": "^0.17.1",
     "node-sass": "^4.7.2",
     "preact": "^8.2.1",
+    "preact-cli-plugin-async": "^1.0.0",
     "preact-compat": "^3.17.0",
     "preact-material-components": "^1.3.2",
     "preact-router": "^2.6.0",
