@@ -1,19 +1,26 @@
 import { Observable } from 'rxjs/Observable';
 
-export function imagesObserver({ environment }) {
+export function imagesObserver({ environment, lastCreated }) {
   return Observable.create(observer => {
-    const { functionsEnvironment, collections } = environment;
-    const ref = window.firebase
-      .database()
-      .ref(functionsEnvironment)
-      .child(collections.uploads)
-      .orderByValue()
-      .limitToLast(1);
+    const uploads = environment.collections.uploads;
+    const orderedCollection = window.firebase
+      .firestore()
+      .collection(uploads)
+      .where('isProduction', '==', true)
+      .where('created', '>', lastCreated)
+      .orderBy('created', 'desc');
 
-    const handler = ref.on('child_added', snapshot =>
-      observer.next({ __id: `${functionsEnvironment}-${snapshot.key}`, value: snapshot.val() })
-    );
+    let laggedIds = new Set();
+    return orderedCollection.onSnapshot(snapshot => {
+      const results = snapshot.docs
+        .filter(doc => !laggedIds.has(doc.id))
+        .map(doc => ({ __id: doc.id, ...doc.data() }));
 
-    return () => ref.off('child_added', handler);
+      results.forEach(({ __id }) => laggedIds.add(__id));
+
+      laggedIds = new Set(snapshot.docs.map(doc => doc.id));
+
+      observer.next(results);
+    });
   });
 }

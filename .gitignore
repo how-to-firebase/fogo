@@ -11,3 +11,4 @@ environment.js
 .vscode
 
 *.log
+bin

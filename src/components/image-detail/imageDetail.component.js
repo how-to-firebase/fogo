@@ -1,7 +1,7 @@
 import style from './imageDetail.scss';
 import { connect } from 'unistore';
 import { mappedActions } from '../../datastore';
-const { setImage, loadImageVersion } = mappedActions;
+const { setImage } = mappedActions;
 
 import spinnerSvg from '../../assets/svg/spinner.svg';
 
@@ -14,7 +14,6 @@ export default function imageDetail({ image }) {
 
   if (image && !version) {
     setImage({ ...image, versions: { original: 'loading' } });
-    loadImageVersion({ record: image.__id });
   }
 
   function handleOverlayClick(e) {

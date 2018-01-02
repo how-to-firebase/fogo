@@ -3,7 +3,7 @@ import style from './images.scss';
 import { connect } from 'unistore';
 import { store, actions, mappedActions } from '../../datastore';
 import { imagesObserver } from '../../observers';
-import { imageQuery, imagesQuery, imageVersionQuery } from '../../queries';
+import { imagesQuery, loadImageVersionIfNecessary } from '../../queries';
 
 const {
   addImage,
@@ -13,6 +13,7 @@ const {
   removeSelection,
   setImage,
   setImagesAllLoaded,
+  setImageVersion,
   setImagesWidth,
   setSelecting,
 } = mappedActions;
@@ -32,15 +33,33 @@ import threeDotsSvg from '../../assets/svg/three-dots.svg';
 // Components
 import ImageDetail from '../image-detail/imageDetail.component';
 
-@connect(({ images, imagesAllLoaded, imagesWidth, image, selecting, selection, timestamp }) => ({
-  images,
-  imagesAllLoaded,
-  imagesWidth,
-  image,
-  selecting,
-  selection,
-  timestamp,
-}))
+// constants
+const GUTTER = 4;
+const HEIGHT = 200;
+const DEFAULT_WIDTH = 200;
+const VERSION_NAME = `x${HEIGHT}`;
+
+@connect(
+  ({
+    environment,
+    images,
+    imagesAllLoaded,
+    imagesWidth,
+    image,
+    selecting,
+    selection,
+    timestamp,
+  }) => ({
+    environment,
+    images,
+    imagesAllLoaded,
+    imagesWidth,
+    image,
+    selecting,
+    selection,
+    timestamp,
+  })
+)
 export default class Images extends Component {
   componentWillMount() {
     const { environment, pageSize } = this.props;
@@ -57,13 +76,27 @@ export default class Images extends Component {
     window.document.addEventListener('keyup', handleKeyup);
     window.document.addEventListener('scroll', this.__handleScroll);
 
-    const mountTimestamp = Date.now();
-    this.__imagesSubscription = imagesObserver({ environment }).subscribe(
-      async ({ __id, value }) => {
-        if (value > mountTimestamp) {
-          const image = await imageQuery(environment, __id);
+    const { images, timestamp } = store.getState();
+    const lastCreated =
+      (images.length &&
+        images.reduce((timestamp, image) => {
+          return Math.max(timestamp, image.created);
+        }, 0)) ||
+      timestamp;
+
+    this.__imagesSubscription = imagesObserver({ environment, lastCreated }).subscribe(
+      newImages => {
+        const { images } = store.getState();
+        const existingIds = new Set(images.map(x => x.__id));
+        const differenceIds = new Set(
+          newImages.map(x => x.__id).filter(id => !existingIds.has(id))
+        );
+        const imagesToAdd = newImages.filter(image => differenceIds.has(image.__id));
+
+        imagesToAdd.forEach(image => {
           addImage(image);
-        }
+          loadImageVersionIfNecessary({ environment, image, versionName: VERSION_NAME });
+        });
       }
     );
   }
@@ -89,46 +122,35 @@ export default class Images extends Component {
     setImagesWidth(this.base.offsetWidth);
   }
 
-  render({ images, imagesAllLoaded, imagesWidth, image, selecting, selection }) {
+  render({ environment, images, imagesAllLoaded, imagesWidth, image, selecting, selection }) {
+    const base = this.base;
     const itemClick = getItemClickHandler({
+      environment,
       images,
-      base: this.base,
+      base,
       selection,
       addSelection,
       removeSelection,
       setImage,
     });
     const iconClick = getIconClickHandler({
+      base,
       selection,
       addSelection,
       setSelecting,
       removeSelection,
     });
-    const gutter = 4;
-    const height = 200;
-    const defaultWidth = 200;
-    const decoratedImages = images
-      .map(image => addImageWidth({ image, height, defaultWidth }))
-      .map(image => addImageVersion({ image, height }));
-    const items = justifyWidths({ images: decoratedImages, gutter, imagesWidth }).map(image =>
-      getImageRow({ image, selection, height, itemClick, iconClick })
-    );
 
-    // Run imageVersionQuery for all items that are missing it.
-    items.forEach(image => {
-      if (typeof image.version.url == 'undefined') {
-        // Convert loadImageVersion into a query
-        // It's now called imageVersionQuery
-        // Loading a bunch of images is causing thrashing, because the state ovewrite is inconsistent
-        // loadImageVersion needs to get the image, return the image, and then something else needs to
-        // do a synchronous overwrite
-        // loadImageVersion({ record: image.__id, height });
-      }
-    });
+    const decoratedImages = images
+      .map(image => addImageWidth({ image, height: HEIGHT, defaultWidth: DEFAULT_WIDTH }))
+      .map(image => addImageVersion({ image, height: HEIGHT }));
+    const items = justifyWidths({ images: decoratedImages, gutter: GUTTER, imagesWidth }).map(
+      image => getImageRow({ image, selection, defaultWidth: DEFAULT_WIDTH, itemClick, iconClick })
+    );
 
     return (
       <div>
-        <ImageDetail image={image} onClick={() => setSelecting(false)} />
+        <ImageDetail image={image} environment={environment} onClick={() => setSelecting(false)} />
         <ul class={style.grid} selecting={selecting}>
           {items}
         </ul>
@@ -174,6 +196,10 @@ async function evaluateLoadingButtonPosition({ pageSize: limit, environment, ima
     const { results, imagesAllLoaded } = await imagesQuery({ environment, cursor, limit });
     addImages(results);
     setImagesAllLoaded(imagesAllLoaded);
+    results.forEach(image =>
+      loadImageVersionIfNecessary({ environment, image, versionName: VERSION_NAME })
+    );
+    console.log('images.versions', images.versions);
   }
 }
 
@@ -191,8 +217,7 @@ function addImageWidth({ image, height, defaultWidth }) {
 }
 
 function addImageVersion({ height, image }) {
-  const versionName = `x${height}`;
-  const version = (image.versions && image.versions[versionName]) || {};
+  const version = (image.versions && image.versions[VERSION_NAME]) || {};
   image = { ...image };
   image.version = version;
   return image;
@@ -236,7 +261,7 @@ function sumRowWidths(row) {
   return row.reduce((sum, image) => sum + image.width, 0);
 }
 
-function getImageRow({ image, selection, height, itemClick, iconClick }) {
+function getImageRow({ image, selection, defaultWidth, itemClick, iconClick }) {
   let li;
   if (image.isGrower) {
     li = <li style={`width: ${image.width}px;`} />;
@@ -264,13 +289,17 @@ function getImageRow({ image, selection, height, itemClick, iconClick }) {
   return li;
 }
 
-function getIconClickHandler({ selection, addSelection, setSelecting, removeSelection }) {
+function getIconClickHandler({ base, selection, addSelection, setSelecting, removeSelection }) {
   return e => {
     e.stopPropagation();
     const id = getId(e.target);
     const isSelected = selection.has(id);
     if (!isSelected) {
-      addSelection(id);
+      if (e.shiftKey) {
+        multiSelect({ id, base });
+      } else {
+        addSelection(id);
+      }
     } else {
       if (selection.size <= 1) {
         setSelecting(false);
@@ -280,38 +309,46 @@ function getIconClickHandler({ selection, addSelection, setSelecting, removeSele
   };
 }
 
-function getItemClickHandler({ images, base, selection, addSelection, removeSelection, setImage }) {
+function getItemClickHandler({
+  environment,
+  images,
+  base,
+  selection,
+  addSelection,
+  removeSelection,
+  setImage,
+}) {
   return e => {
     const id = getId(e.target);
     const isSelected = selection.has(id);
 
     if (e.ctrlKey) {
       if (!isSelected) {
-        addSelect;
-        ion(id);
+        addSelection(id);
       } else {
         removeSelection(id);
       }
     } else if (e.shiftKey) {
-      const items = Array.from(base.querySelectorAll('li'));
-      const firstSelectedItemIndex = items.findIndex(item => item.getAttribute('is-selected'));
-      const clickedItemIndex = items.findIndex(item => item.getAttribute('item-id') == id);
-      const startIndex = Math.min(firstSelectedItemIndex, clickedItemIndex);
-      const endIndex = Math.max(firstSelectedItemIndex, clickedItemIndex);
-      const ids = items.slice(startIndex, endIndex + 1).map(item => item.getAttribute('item-id'));
-      addSelection(ids);
+      multiSelect({ id, base });
     } else {
       const image = images.find(image => image.__id == id);
       setImage(image);
+      loadImageVersionIfNecessary({ environment, image });
     }
   };
 }
 
+function multiSelect({ id, base }) {
+  const items = Array.from(base.querySelectorAll('li'));
+  const firstSelectedItemIndex = items.findIndex(item => item.getAttribute('is-selected'));
+  const clickedItemIndex = items.findIndex(item => item.getAttribute('item-id') == id);
+  const startIndex = Math.min(firstSelectedItemIndex, clickedItemIndex);
+  const endIndex = Math.max(firstSelectedItemIndex, clickedItemIndex);
+  const ids = items.slice(startIndex, endIndex + 1).map(item => item.getAttribute('item-id'));
+  addSelection((ids.length && ids) || id);
+}
+
 function getId(el) {
   const itemId = el.getAttribute('item-id');
-  if (itemId) {
-    return itemId;
-  } else if (el.parentElement) {
-    return getId(el.parentElement);
-  }
+  return itemId || (el.parentElement && getId(el.parentElement));
 }
