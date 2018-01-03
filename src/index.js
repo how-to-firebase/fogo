@@ -2,10 +2,12 @@ import './style';
 import { Component } from 'preact';
 import Router from 'preact-router';
 import { Provider } from 'unistore';
-import { store } from './datastore';
+import { store, mappedActions } from './datastore';
 import Match from 'preact-router/match';
 
 const { route } = Router;
+
+const { setCurrentUser, setPath, setToken } = mappedActions;
 
 // Quiver
 import FirebaseAuthentication from '@quiver/firebase-authentication';
@@ -24,12 +26,8 @@ import 'preact-material-components/Snackbar/style.css';
 import { HomeView } from './components/views';
 
 export default class Fogo extends Component {
-  get auth() {
-    return window.firebase.auth();
-  }
-
   componentWillMount() {
-    this.registerOnAuthStateChanged();
+    registerOnAuthStateChanged();
 
     addEventListener('alert', e =>
       this.snackbar.MDComponent.show({
@@ -39,20 +37,8 @@ export default class Fogo extends Component {
   }
 
   componentDidMount() {
-    this.registerStorageUploaderListeners();
-  }
-
-  registerOnAuthStateChanged() {
-    this.auth.onAuthStateChanged(currentUser => {
-      const { currentUser: laggedCurrentUser } = store.getState();
-      store.setState({ laggedCurrentUser, currentUser });
-    });
-  }
-
-  registerStorageUploaderListeners() {
-    addEventListener('storageUploaderComplete', e => {
-      route('/');
-    });
+    registerStorageUploaderListeners();
+    registerIdTokenRefreshListener();
   }
 
   render() {
@@ -61,7 +47,7 @@ export default class Fogo extends Component {
     return (
       <Provider store={store}>
         <div id="app-wrapper">
-          <Match>{this.handlePath}</Match>
+          <Match>{handlePath}</Match>
           <Guard />
           <Nav />
           <Drawer />
@@ -69,7 +55,7 @@ export default class Fogo extends Component {
           <div class="full-height router-wrapper">
             <Router>
               <FirebaseAuthentication google path="/login" />
-              <HomeView path="/images" environment={environment}/>
+              <HomeView path="/images" environment={environment} />
               <div path="/play">Path: /play</div>
               <StorageUploader
                 path="/upload"
@@ -83,9 +69,62 @@ export default class Fogo extends Component {
       </Provider>
     );
   }
+}
 
-  handlePath({ matches, path, url }) {
-    const { path: laggedPath } = store.getState();
-    store.setState({ laggedPath, path });
-  }
+function registerOnAuthStateChanged() {
+  window.firebase.auth().onAuthStateChanged(setCurrentUser);
+}
+
+function registerStorageUploaderListeners() {
+  addEventListener('storageUploaderComplete', e => route('/'));
+
+  addEventListener('storageUploaderError', e =>
+    dispatchEvent(new CustomEvent('alert', { detail: e.detail.error.message }))
+  );
+}
+
+function registerIdTokenRefreshListener() {
+  let idTokenRefreshRef;
+  let handler;
+  store.subscribe(({ environment, token, laggedCurrentUser, currentUser }) => {
+    if (handler && laggedCurrentUser && laggedCurrentUser.uid != currentUser.uid) {
+      idTokenRefreshRef.off('value', handler);
+      handler = null;
+    } else if (!handler && environment && currentUser.uid) {
+      idTokenRefreshRef = getIdTokenRefreshRef({ environment, uid: currentUser.uid });
+      handler = idTokenRefreshRef.on('value', snapshot => {
+        const force = !!token;
+        getToken({ currentUser, force }).then(setToken);
+      });
+    }
+  });
+}
+
+function getIdTokenRefreshRef({ environment, uid }) {
+  const path = environment.refs.idTokenRefresh.replace(/\{uid\}/, uid);
+  return window.firebase.database().ref(path);
+}
+
+function getToken({ currentUser, force }) {
+  //https://firebase.google.com/docs/auth/admin/custom-claims
+  return currentUser
+    .getIdToken(force)
+    .then(idToken => JSON.parse(b64DecodeUnicode(idToken.split('.')[1])));
+}
+
+function b64DecodeUnicode(str) {
+  // https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
+  // Going backwards: from bytestream, to percent-encoding, to original string.
+  return decodeURIComponent(
+    atob(str)
+      .split('')
+      .map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join('')
+  );
+}
+
+function handlePath({ path }) {
+  setPath(path);
 }

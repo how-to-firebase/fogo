@@ -2,6 +2,10 @@ const functions = require('firebase-functions');
 const { environmentUtil } = require('./utils');
 const environment = environmentUtil(functions);
 
+// Admin
+const { customClaimOnCreate } = require('./auth');
+exports.customClaimOnCreate = functions.auth.user().onCreate(customClaimOnCreate({ environment }));
+
 // Storage
 const { uploadsOnChange } = require('./storage');
 exports.uploadsOnChange = functions.storage.object().onChange(uploadsOnChange({ environment }));

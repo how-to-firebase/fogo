@@ -3,19 +3,21 @@ import * as rawActions from './actions';
 import environment from '../environment';
 
 const store = createStore({
+  currentUser: null,
   environment,
   images: [],
   image: null,
   imagesAllLoaded: false,
-  showMenu: false,
+  imagesObserver: null,
   laggedPath: null,
   laggedCurrentUser: null,
   listState: null,
-  imagesObserver: null,
   path: null,
   selecting: false,
   selection: new Set(),
-  timestamp: Date.now()
+  showMenu: false,
+  timestamp: Date.now(),
+  token: null,
 });
 
 const actions = store => rawActions;

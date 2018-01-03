@@ -1,4 +1,7 @@
-path /production/uploads {
-  read() { auth != null }
-  index() { ['.value'] }
+path /notifications/{uid} {
+  read() { isCurrentUser(uid) }
+}
+
+isCurrentUser(uid) {
+  auth != null && auth.uid == uid
 }
