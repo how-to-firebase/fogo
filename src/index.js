@@ -25,6 +25,8 @@ import 'preact-material-components/Snackbar/style.css';
 // Views
 import { HomeView } from './components/views';
 
+console.log('HomeView', HomeView);
+
 export default class Fogo extends Component {
   componentWillMount() {
     registerOnAuthStateChanged();
@@ -87,14 +89,13 @@ function registerIdTokenRefreshListener() {
   let idTokenRefreshRef;
   let handler;
   store.subscribe(({ environment, token, laggedCurrentUser, currentUser }) => {
-    if (handler && laggedCurrentUser && laggedCurrentUser.uid != currentUser.uid) {
+    if (handler && laggedCurrentUser && currentUser && laggedCurrentUser.uid != currentUser.uid) {
       idTokenRefreshRef.off('value', handler);
       handler = null;
     } else if (!handler && environment && currentUser.uid) {
       idTokenRefreshRef = getIdTokenRefreshRef({ environment, uid: currentUser.uid });
       handler = idTokenRefreshRef.on('value', snapshot => {
-        const force = !!token;
-        getToken({ currentUser, force }).then(setToken);
+        getToken({ currentUser, force: true }).then(setToken);
       });
     }
   });
