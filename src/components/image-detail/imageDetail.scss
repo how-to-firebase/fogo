@@ -38,10 +38,12 @@
 
 }
 
-.copy {
-  cursor: pointer;
+.dimensions {
+  display: inline-block;
+  margin: 0 1rem;
+  min-width: 8rem;
 }
 
-.copyTarget {
-  margin-left: 1rem;
+.copy {
+  cursor: pointer;
 }

@@ -13,7 +13,6 @@ const {
   removeSelection,
   setImage,
   setImagesAllLoaded,
-  setImageVersion,
   setImagesWidth,
   setSelecting,
 } = mappedActions;

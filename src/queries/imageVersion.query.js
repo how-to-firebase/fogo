@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { imageQuery } from './image.query';
 import { mappedActions } from '../datastore';
-const { setImageVersion } = mappedActions;
+const { updateImage } = mappedActions;
 
 export async function imageVersionQuery({ environment, record, versionName }) {
   let imageUrl = `${environment.urls.image}?record=${record}`;
@@ -22,11 +23,12 @@ export async function loadImageVersionIfNecessary({
   image,
   versionName = 'original',
 }) {
-  if (!image.versions || (!image.versions[versionName] && !loadingQueue.has(image.name))) {
-    loadingQueue.add(image.name);
-    const id = image.__id;
+  const { name, __id: id } = image;
+  if (!image.versions || (!image.versions[versionName] && !loadingQueue.has(name))) {
+    loadingQueue.add(name);
     const url = await imageVersionQuery({ environment, record: id, versionName });
-    setImageVersion({ id, versionName, url });
-    loadingQueue.delete(image.name);
+    const updatedImage = await imageQuery(environment, id);
+    updateImage(updatedImage);
+    loadingQueue.delete(name);
   }
 }
