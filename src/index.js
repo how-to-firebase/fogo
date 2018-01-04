@@ -25,8 +25,6 @@ import 'preact-material-components/Snackbar/style.css';
 // Views
 import { HomeView } from './components/views';
 
-console.log('HomeView', HomeView);
-
 export default class Fogo extends Component {
   componentWillMount() {
     registerOnAuthStateChanged();
