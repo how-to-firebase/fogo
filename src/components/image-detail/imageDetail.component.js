@@ -8,14 +8,10 @@ import spinnerSvg from '../../assets/svg/spinner.svg';
 import Icon from 'preact-material-components/Icon';
 
 export default function imageDetail({ image }) {
-  const versionName = 'original';
-  const { versions } = image || {};
-  const version = versions && versions[versionName];
+  const version = getVersion(image);
   const versionRows = image && getVersionRows(image);
 
-  if (image && !version) {
-    setImage({ ...image, versions: { original: 'loading' } });
-  }
+  loadImageIfMissing(image);
 
   return (
     image && (
@@ -40,17 +36,26 @@ export default function imageDetail({ image }) {
   );
 }
 
-function getVersionRows({ tags, versions }) {
-  const { ExifImageHeight, ExifImageWidth } = tags || {};
+function loadImageIfMissing(image) {
+  if (image && !getVersion(image)) {
+    setImage({ ...image, versions: { original: 'loading' } });
+  }
+}
 
+function getVersion(image) {
+  const versionName = 'original';
+  const { versions } = image || {};
+  return versions && versions[versionName];
+}
+
+function getVersionRows({ tags, versions }) {
   return Object.keys(versions).map(key => {
     const version = versions[key];
     if (version != 'loading') {
-      const dimensions =
-        (key == 'original' && tags && `${ExifImageWidth}x${ExifImageHeight}`) || key;
-      const filename = version.name.split('/').pop();
-      const url = version.shortUrl || version.url;
-      const markdown = `![${filename}](${url})`;
+      const dimensions = getDimensions({ tags, key });
+      const url = getUrl(version);
+      const markdown = getMarkdown(version);
+
       return [
         <li class={style.copy} onClick={handleCopyClick}>
           <Icon>content_copy</Icon>
@@ -67,6 +72,25 @@ function getVersionRows({ tags, versions }) {
   });
 }
 
+function getDimensions({ tags, key }) {
+  const { ExifImageHeight, ExifImageWidth } = tags || {};
+  return (key == 'original' && tags && `${ExifImageWidth}x${ExifImageHeight}`) || key;
+}
+
+function getMarkdown(version) {
+  const filename = getFilename(version);
+  const url = getUrl(version);
+  return `![${filename}](${url})`;
+}
+
+function getFilename(version) {
+  return version.name.split('/').pop();
+}
+
+function getUrl(version) {
+  return version.shortUrl || version.url;
+}
+
 function handleOverlayClick(e) {
   if (e.target.id == 'overlay') {
     setImage();
@@ -81,5 +105,9 @@ function handleCopyClick({ target }) {
   selection.addRange(range);
   document.execCommand('copy');
 
+  fireAlert('Copied text to clipboard');
+}
+
+function fireAlert(detail) {
   dispatchEvent(new CustomEvent('alert', { detail: 'Copied text to clipboard', bubbles: true }));
 }
