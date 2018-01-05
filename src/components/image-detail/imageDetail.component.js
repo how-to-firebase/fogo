@@ -105,9 +105,9 @@ function handleCopyClick({ target }) {
   selection.addRange(range);
   document.execCommand('copy');
 
-  fireAlert('Copied text to clipboard');
+  fireAlert('Copied to clipboard');
 }
 
 function fireAlert(detail) {
-  dispatchEvent(new CustomEvent('alert', { detail: 'Copied text to clipboard', bubbles: true }));
+  dispatchEvent(new CustomEvent('alert', { detail, bubbles: true }));
 }

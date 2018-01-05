@@ -32,6 +32,7 @@ export default class Fogo extends Component {
     addEventListener('alert', e =>
       this.snackbar.MDComponent.show({
         message: e.detail,
+        timeout: 1000
       })
     );
   }

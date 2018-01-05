@@ -28,6 +28,8 @@ import 'preact-material-components/Icon/style.css';
 // Svg
 import spinnerSvg from '../../assets/svg/spinner.svg';
 import threeDotsSvg from '../../assets/svg/three-dots.svg';
+import contentCopy from '../../assets/svg/content-copy.svg';
+import openWith from '../../assets/svg/open-with.svg';
 
 // Components
 import ImageDetail from '../image-detail/imageDetail.component';
@@ -123,7 +125,7 @@ export default class Images extends Component {
 
   render({ environment, images, imagesAllLoaded, imagesWidth, image, selecting, selection }) {
     const base = this.base;
-    const itemClick = getItemClickHandler({
+    const imageDetailClick = getImageDetailClickHandler({
       environment,
       images,
       base,
@@ -132,19 +134,28 @@ export default class Images extends Component {
       removeSelection,
       setImage,
     });
-    const iconClick = getIconClickHandler({
+    const selectClick = getSelectClickHandler({
       base,
       selection,
       addSelection,
       setSelecting,
       removeSelection,
     });
+    const copyClick = getCopyClickHandler();
 
     const decoratedImages = images
       .map(image => addImageWidth({ image, height: HEIGHT, defaultWidth: DEFAULT_WIDTH }))
       .map(image => addImageVersion({ image, height: HEIGHT }));
     const items = justifyWidths({ images: decoratedImages, gutter: GUTTER, imagesWidth }).map(
-      image => getImageRow({ image, selection, defaultWidth: DEFAULT_WIDTH, itemClick, iconClick })
+      image =>
+        getImageRow({
+          image,
+          selection,
+          defaultWidth: DEFAULT_WIDTH,
+          copyClick,
+          imageDetailClick,
+          selectClick,
+        })
     );
 
     return (
@@ -259,7 +270,7 @@ function sumRowWidths(row) {
   return row.reduce((sum, image) => sum + image.width, 0);
 }
 
-function getImageRow({ image, selection, defaultWidth, itemClick, iconClick }) {
+function getImageRow({ image, selection, defaultWidth, copyClick, imageDetailClick, selectClick }) {
   let li;
   if (image.isGrower) {
     li = <li style={`width: ${image.width}px;`} />;
@@ -267,13 +278,23 @@ function getImageRow({ image, selection, defaultWidth, itemClick, iconClick }) {
     const id = image.__id;
     const name = image.name.split('/').pop();
     const isSelected = selection.has(id);
+    const markdown = getMarkdown(image);
 
     li = (
-      <li item-id={id} class={style.item} is-selected={isSelected} onClick={itemClick}>
-        <Icon className={`${style.icon}`} onClick={iconClick}>
+      <li item-id={id} class={style.item} is-selected={isSelected}>
+        <Icon className={`${style.icon}`} onClick={selectClick}>
           done
         </Icon>
-        <div class={style.description}>{name}</div>
+        <div class={style.actions}>
+          <img src={openWith} alt="open image detail" onClick={imageDetailClick} />
+          <img src={contentCopy} alt="copy image markdown" onClick={copyClick} />
+        </div>
+        <div class={style.description} onClick={selectClick}>
+          {name}
+        </div>
+        <span class={style.markdown} copy>
+          {markdown}
+        </span>
         <div class={style.image}>
           <div
             class={style.img}
@@ -287,7 +308,13 @@ function getImageRow({ image, selection, defaultWidth, itemClick, iconClick }) {
   return li;
 }
 
-function getIconClickHandler({ base, selection, addSelection, setSelecting, removeSelection }) {
+function getMarkdown(image) {
+  const url = image.version.shortUrl || image.version.url;
+  const name = image.name.split('/').pop();
+  return `![${name}](${url})`;
+}
+
+function getSelectClickHandler({ base, selection, addSelection, setSelecting, removeSelection }) {
   return e => {
     e.stopPropagation();
     const id = getId(e.target);
@@ -307,7 +334,7 @@ function getIconClickHandler({ base, selection, addSelection, setSelecting, remo
   };
 }
 
-function getItemClickHandler({
+function getImageDetailClickHandler({
   environment,
   images,
   base,
@@ -334,6 +361,24 @@ function getItemClickHandler({
       loadImageVersionIfNecessary({ environment, image });
     }
   };
+}
+
+function getCopyClickHandler() {
+  return e => {
+    const el = e.target.parentElement.parentElement.querySelector('[copy]');
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    document.execCommand('copy');
+
+    fireAlert('Copied to clipboard');
+  };
+}
+
+function fireAlert(detail) {
+  dispatchEvent(new CustomEvent('alert', { detail, bubbles: true }));
 }
 
 function multiSelect({ id, base }) {

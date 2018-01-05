@@ -8,7 +8,6 @@
 }
 
 .item {
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   margin: 4px 0;
@@ -17,21 +16,60 @@
   user-select: none;
 
   &:hover .description {
+    background: black;
     display: block;
+  }
+
+  &:hover .actions {
+    display: flex;
   }
 }
 
 .description {
-  background: rgba(0, 0, 0, .5) !important;
+  background: rgba(25, 25, 25, 0.5);
+  cursor: pointer;
   display: none;
-  padding: 1rem;
+  padding: 1rem 1rem 1rem 3rem;
   color: white;
   text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   position: absolute;
   top: 0;
   right: 0;
   left: 0;
+
+  z-index: 2;
+}
+
+.actions {
+  display: none;
+  align-items: center;
+  justify-content: space-evenly;
+
+  background: rgba(0, 0, 0, .9);
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  z-index: 1;
+
+  img {
+    cursor: pointer;
+    width: 20%;
+    height: 20%;
+    border-radius: 2px;
+    padding: 1rem;
+
+    &:hover {
+      background: black;
+    }
+  }
 }
 
 .image {
@@ -54,12 +92,21 @@
   position: absolute;
   top: 10px;
   left: 10px;
+
   border: 2px solid transparent;
   border-radius: 50%;
+  cursor: pointer;
   display: none;
   font-size: 18px;
-  z-index: 1;
+  z-index: 3;
 
+}
+
+.markdown {
+  position: absolute;
+  user-select: text;
+  width: 50px;
+  z-index: -1;
 }
 
 .item[is-selected] .icon {
