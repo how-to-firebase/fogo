@@ -1,6 +1,6 @@
 const uploadsOnChange = require('./uploads.onChange');
-const environment = require('../utils').environmentUtil();
-const { adminUtil, collectionsUtil } = require('../utils');
+const { adminUtil, collectionsUtil, environmentUtil } = require('../utils');
+const environment = environmentUtil();
 const admin = adminUtil(environment);
 const uploads = collectionsUtil(environment).get('uploads');
 const db = admin.firestore();
