@@ -1,5 +1,6 @@
 import { Component } from 'preact';
 import style from './images.scss';
+console.log('style', style);
 import { connect } from 'unistore';
 import { store, actions, mappedActions } from '../../datastore';
 import { imagesObserver } from '../../observers';
@@ -17,19 +18,12 @@ const {
   setSelecting,
 } = mappedActions;
 
-// Preact Material
-import GridList from 'preact-material-components/GridList';
-import Button from 'preact-material-components/Button';
-import Icon from 'preact-material-components/Icon';
-import 'preact-material-components/GridList/style.css';
-import 'preact-material-components/Button/style.css';
-import 'preact-material-components/Icon/style.css';
-
 // Svg
-import spinnerSvg from '../../assets/svg/spinner.svg';
-import threeDotsSvg from '../../assets/svg/three-dots.svg';
+import spinner from '../../assets/svg/spinner.svg';
+import threeDots from '../../assets/svg/three-dots.svg';
 import contentCopy from '../../assets/svg/content-copy.svg';
 import openWith from '../../assets/svg/open-with.svg';
+import checkCircle from '../../assets/svg/check-circle.svg';
 
 // Components
 import ImageDetail from '../image-detail/imageDetail.component';
@@ -65,15 +59,15 @@ export default class Images extends Component {
   componentWillMount() {
     const { environment, pageSize } = this.props;
 
-    this.__debouncedEvaluateLoadingButton = debounce(() => {
+    this.__debouncedEvaluateLoading = debounce(() => {
       const { images, imagesAllLoaded } = store.getState();
 
       if (!imagesAllLoaded) {
-        evaluateLoadingButtonPosition({ pageSize, environment, images });
+        evaluateLoadingPosition({ pageSize, environment, images });
       }
     }, 500);
 
-    this.__handleScroll = this.__debouncedEvaluateLoadingButton;
+    this.__handleScroll = this.__debouncedEvaluateLoading;
     window.document.addEventListener('keyup', handleKeyup);
     window.document.addEventListener('scroll', this.__handleScroll);
 
@@ -116,7 +110,7 @@ export default class Images extends Component {
   }
 
   componentDidUpdate() {
-    this.__debouncedEvaluateLoadingButton();
+    this.__debouncedEvaluateLoading();
   }
 
   handleResize() {
@@ -164,13 +158,13 @@ export default class Images extends Component {
         <ul class={style.grid} selecting={selecting}>
           {items}
         </ul>
-        <Button
-          id="loading-button"
+        <div
+          id="loading-bar"
           className={style.loadMore}
           style={imagesAllLoaded && 'visibility: hidden;'}
         >
-          <img src={threeDotsSvg} alt="Loading..." />
-        </Button>
+          <img src={threeDots} alt="Loading..." />
+        </div>
       </div>
     );
   }
@@ -195,10 +189,10 @@ function handleKeyup({ key }) {
   }
 }
 
-async function evaluateLoadingButtonPosition({ pageSize: limit, environment, images }) {
-  const loadingButton = window.document.getElementById('loading-button');
+async function evaluateLoadingPosition({ pageSize: limit, environment, images }) {
+  const loadingBar = window.document.getElementById('loading-bar');
   const scroll = window.document.body.parentElement.scrollTop;
-  const top = loadingButton.getBoundingClientRect().top;
+  const top = loadingBar.getBoundingClientRect().top;
   const viewportHeight = window.visualViewport.height;
 
   if (top < viewportHeight) {
@@ -282,9 +276,18 @@ function getImageRow({ image, selection, defaultWidth, copyClick, imageDetailCli
 
     li = (
       <li item-id={id} class={style.item} is-selected={isSelected}>
-        <Icon className={`${style.icon}`} onClick={selectClick}>
-          done
-        </Icon>
+        <svg
+          class={style.icon}
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+          onClick={selectClick}
+        >
+          <path fill="none" d="M0 0h24v24H0z" />
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+        </svg>
+
         <div class={style.actions}>
           <img src={openWith} alt="open image detail" onClick={imageDetailClick} />
           <img src={contentCopy} alt="copy image markdown" onClick={copyClick} />
@@ -299,7 +302,7 @@ function getImageRow({ image, selection, defaultWidth, copyClick, imageDetailCli
           <div
             class={style.img}
             style={`background-image: url('${image.version.url ||
-              spinnerSvg}'); width: ${image.width || defaultWidth}px;`}
+              spinner}'); width: ${image.width || defaultWidth}px;`}
           />
         </div>
       </li>

@@ -93,12 +93,12 @@
   top: 10px;
   left: 10px;
 
-  border: 2px solid transparent;
-  border-radius: 50%;
   cursor: pointer;
   display: none;
   font-size: 18px;
   z-index: 3;
+
+  fill: #DDD;
 
 }
 
@@ -111,24 +111,23 @@
 
 .item[is-selected] .icon {
   display: inherit;
-  background: var(--mdc-theme-primary) !important;
-  border-color: var(--mdc-theme-primary) !important;
-  color: #777 !important;
+  fill: var(--mdc-theme-primary) !important;
 }
 
 .loadMore {
-  // background: var(--mdc-theme-primary) !important;
-  padding: 14px 1rem 3rem;
-  display: block !important;
+  padding: 3rem 1rem;
   margin: 1rem auto;
+
+  img {
+    display: block;
+    margin: auto;
+  }
 }
 
 .grid {
   .item:hover {
     .icon {
       display: inherit;
-      color: #777;
-      background: #DDD;
     }
   }
 }

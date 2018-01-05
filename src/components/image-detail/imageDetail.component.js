@@ -3,9 +3,9 @@ import { connect } from 'unistore';
 import { mappedActions } from '../../datastore';
 const { setImage } = mappedActions;
 
-import spinnerSvg from '../../assets/svg/spinner.svg';
-
-import Icon from 'preact-material-components/Icon';
+// SVG
+import spinner from '../../assets/svg/spinner.svg';
+import contentCopy from '../../assets/svg/content-copy.svg';
 
 export default function imageDetail({ image }) {
   const version = getVersion(image);
@@ -18,7 +18,7 @@ export default function imageDetail({ image }) {
       <div id="overlay" class={style.overlay} onClick={handleOverlayClick}>
         <img
           class={style.image}
-          src={(version && version.url) || spinnerSvg}
+          src={(version && version.url) || spinner}
           alt={version && version.name}
         />
         <ul class={style.description}>
@@ -58,12 +58,12 @@ function getVersionRows({ tags, versions }) {
 
       return [
         <li class={style.copy} onClick={handleCopyClick}>
-          <Icon>content_copy</Icon>
+          <img src={contentCopy} alt="copy url"/>
           <span class={style.dimensions}>{dimensions}</span>
           <span>{url}</span>
         </li>,
         <li class={style.copy} onClick={handleCopyClick}>
-          <Icon>content_copy</Icon>
+          <img src={contentCopy} alt="copy markdown"/>
           <span class={style.dimensions} />
           <span>{markdown}</span>
         </li>,
