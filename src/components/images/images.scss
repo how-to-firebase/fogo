@@ -29,7 +29,7 @@
   background: rgba(25, 25, 25, 0.5);
   cursor: pointer;
   display: none;
-  padding: 1rem 1rem 1rem 3rem;
+  padding: .5rem 1rem .5rem 3rem;
   color: white;
   text-align: right;
   white-space: nowrap;
@@ -90,12 +90,11 @@
 
 .icon {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: .5rem;
+  left: .5rem;
 
   cursor: pointer;
   display: none;
-  font-size: 18px;
   z-index: 3;
 
   fill: #DDD;

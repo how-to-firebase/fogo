@@ -8,6 +8,8 @@ import Toolbar from 'preact-material-components/Toolbar';
 import 'preact-material-components/Button/style.css';
 import 'preact-material-components/Toolbar/style.css';
 
+import Search from "../search/search.component";
+
 // svg
 import add from '../../assets/svg/add.svg';
 import deleteSvg from '../../assets/svg/delete.svg';
@@ -18,25 +20,35 @@ export default connect('showMenu,path,selection', actions)(
     <Toolbar className={style['mdc-toolbar']}>
       <Toolbar.Row>
         <Toolbar.Section align-start={true} className={style['mdc-toolbar__section']}>
-          <img class={style.toolbarIcon} src={menu} alt="Open menu" menu={true} onClick={toggleMenu}/>
+          <img
+            class={style.toolbarIcon}
+            src={menu}
+            alt="Open menu"
+            menu={true}
+            onClick={toggleMenu}
+          />
           <Toolbar.Title className={style['mdc-toolbar__title']}>Fogo</Toolbar.Title>
-          {path == '/images' &&
-            !!selection.size && (
-              <div class={style.actions}>
-                <img
-                  class={style.icon}
-                  src={add}
-                  alt="Add to gallery"
-                  onClick={addSelectionToGallery}
-                />
-                <img
-                  class={style.icon}
-                  src={deleteSvg}
-                  alt="Delete images"
-                  onClick={deleteSelection}
-                />
-              </div>
-            )}
+          <div class={style.actions}>
+            {path == '/images' && [
+              <Search />,
+              <div>
+                {!!selection.size && [
+                  <img
+                    class={style.icon}
+                    src={add}
+                    alt="Add to gallery"
+                    onClick={addSelectionToGallery}
+                  />,
+                  <img
+                    class={style.icon}
+                    src={deleteSvg}
+                    alt="Delete images"
+                    onClick={deleteSelection}
+                  />,
+                ]}
+              </div>,
+            ]}
+          </div>
         </Toolbar.Section>
       </Toolbar.Row>
     </Toolbar>

@@ -36,6 +36,7 @@
     "@quiver/storage-uploader": "^0.0.2",
     "@reactivex/rxjs": "^5.5.3",
     "axios": "^0.17.1",
+    "linkstate": "^1.1.0",
     "node-sass": "^4.7.2",
     "preact": "^8.2.1",
     "preact-cli-plugin-async": "^1.0.0",

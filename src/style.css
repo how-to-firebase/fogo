@@ -1,8 +1,9 @@
 @import url("https://use.typekit.net/vjz5ruy.css");
 
 html, body {
-	font: 14px/1.21 'Roboto', arial, sans-serif;
-	font-weight: 400;
+  font-family: 'mr-eaves-modern', arial, sans-serif;
+  font-size: 20px;
+	font-weight: 300;
   margin: 0;
   
   --mdc-theme-primary: #29b6f6;
@@ -11,6 +12,12 @@ html, body {
   --mdc-theme-secondary: #ec407a;
   --mdc-theme-secondary-light: #ff77a9;
   --mdc-theme-secondary-dark: #b4004e;
+}
+
+input {
+  font: 14px/1.21 'mr-eaves-modern', arial, sans-serif;
+  font-weight: 800;
+  font-style: italic;
 }
 
 a {
@@ -56,28 +63,4 @@ h1 {
 
 .storage-uploader .mdc-grid-tile__primary-content {
   height: 156px !important;
-}
-
-/* fallback */
-@font-face {
-  font-family: 'Material Icons';
-  font-style: normal;
-  font-weight: 400;
-  src: url(https://fonts.gstatic.com/s/materialicons/v31/2fcrYFNaTjcS6g4U3t-Y5ZjZjT5FdEJ140U2DJYC3mY.woff2) format('woff2');
-}
-
-.material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
 }

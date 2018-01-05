@@ -13,6 +13,7 @@ const store = createStore({
   laggedCurrentUser: null,
   listState: null,
   path: null,
+  search: '',
   selecting: false,
   selection: new Set(),
   showMenu: false,

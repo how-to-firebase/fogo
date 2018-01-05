@@ -8,14 +8,18 @@
   }
   
   .mdc-toolbar__title {
-    font-family: cortado !important;
+    font-family: 'mr-eaves-modern' !important;
     font-size: 2rem !important;
-    flex-grow: 1;
+    font-weight: 800;
+    font-style: italic;
   }
 }
 
 .actions {
+  display: flex;
+  align-items: center;
   padding: 0 2rem; 
+  flex-grow: 1;
 }
 
 .icon {
@@ -26,4 +30,3 @@
 .toolbarIcon {
   margin-left: 1rem;
 }
-
