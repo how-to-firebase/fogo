@@ -16,11 +16,7 @@ module.exports = ({ environment }) => event => {
       ? deleteFile(admin, doc)
       : getExif(file)
           .then(exif => getPayload(event.data, environment.env, exif, path))
-          .then(payload =>
-            doc
-              .set(payload, { merge: true })
-              .then(() => payload)
-          );
+          .then(payload => doc.set(payload, { merge: true }).then(() => payload));
   }
 };
 
@@ -56,7 +52,14 @@ function getExif(file) {
   });
 }
 function getPayload(data, env, exif, path) {
-  const payload = Object.assign(data, env, { environment: path[0], created: Date.now() });
+  const environment = path[0];
+  const filename = path[path.length - 1];
+  const payload = Object.assign(
+    data,
+    env,
+    { environment, created: Date.now() },
+    { search: { environment, filename } }
+  );
   return mergeExif(payload, exif);
 }
 
