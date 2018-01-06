@@ -41,6 +41,7 @@ const VERSION_NAME = `x${HEIGHT}`;
     imagesAllLoaded,
     imagesWidth,
     image,
+    search,
     searching,
     searchResults,
     selecting,
@@ -52,6 +53,7 @@ const VERSION_NAME = `x${HEIGHT}`;
     imagesAllLoaded,
     imagesWidth,
     image,
+    search,
     searching,
     searchResults,
     selecting,
@@ -127,6 +129,7 @@ export default class Images extends Component {
     imagesAllLoaded,
     imagesWidth,
     image,
+    search,
     searching,
     searchResults,
     selecting,
@@ -151,7 +154,8 @@ export default class Images extends Component {
     });
     const copyClick = getCopyClickHandler();
 
-    const imagesToDecorate = (searching && ((searchResults && searchResults.hits) || [])) || images;
+    const imagesToDecorate =
+      (searching && search && ((searchResults && searchResults.hits) || [])) || images;
     const decoratedImages = imagesToDecorate
       .map(image => addImageWidth({ image, height: HEIGHT, defaultWidth: DEFAULT_WIDTH }))
       .map(image => addImageVersion({ image, height: HEIGHT }));
@@ -287,7 +291,6 @@ function getImageRow({ image, selection, defaultWidth, copyClick, imageDetailCli
     li = <li style={`width: ${image.width}px;`} />;
   } else {
     const { __id: id, _highlightResult: highlightResult } = image;
-    console.log('highlightResult', highlightResult);
     const name = image.name.split('/').pop();
     const isSelected = selection.has(id);
     const markdown = getMarkdown(image);

@@ -1,5 +1,5 @@
 export function setSearchResults({ selecting }, searchResults) {
-  if (searchResults && searchResults.hits.length) {
+  if (searchResults) {
     selecting = true;
   }
   return { searchResults, selecting };
