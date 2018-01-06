@@ -10,8 +10,9 @@ import Images from '../images/images.component';
 // svg
 import add from "../../assets/svg/add.svg";
 
-const HomeView = connect('token,environment', actions)(({ token, environment }) => (
+const HomeView = connect('environment,searching,token', actions)(({ environment, searching, token }) => (
   <div id="home-view" class={style.home} view="home">
+    <h1 class={style.header}>{searching && 'Search results' || 'All images'}</h1>
     <Images pageSize="3" environment={environment} />
     {token && token.admin && (
       <Link href="/upload" class={style.fab}>

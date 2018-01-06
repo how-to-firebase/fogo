@@ -41,6 +41,8 @@ const VERSION_NAME = `x${HEIGHT}`;
     imagesAllLoaded,
     imagesWidth,
     image,
+    searching,
+    searchResults,
     selecting,
     selection,
     timestamp,
@@ -50,6 +52,8 @@ const VERSION_NAME = `x${HEIGHT}`;
     imagesAllLoaded,
     imagesWidth,
     image,
+    searching,
+    searchResults,
     selecting,
     selection,
     timestamp,
@@ -117,7 +121,17 @@ export default class Images extends Component {
     setImagesWidth(this.base.offsetWidth);
   }
 
-  render({ environment, images, imagesAllLoaded, imagesWidth, image, selecting, selection }) {
+  render({
+    environment,
+    images,
+    imagesAllLoaded,
+    imagesWidth,
+    image,
+    searching,
+    searchResults,
+    selecting,
+    selection,
+  }) {
     const base = this.base;
     const imageDetailClick = getImageDetailClickHandler({
       environment,
@@ -137,7 +151,8 @@ export default class Images extends Component {
     });
     const copyClick = getCopyClickHandler();
 
-    const decoratedImages = images
+    const imagesToDecorate = (searching && ((searchResults && searchResults.hits) || [])) || images;
+    const decoratedImages = imagesToDecorate
       .map(image => addImageWidth({ image, height: HEIGHT, defaultWidth: DEFAULT_WIDTH }))
       .map(image => addImageVersion({ image, height: HEIGHT }));
     const items = justifyWidths({ images: decoratedImages, gutter: GUTTER, imagesWidth }).map(
@@ -157,6 +172,9 @@ export default class Images extends Component {
         <ImageDetail image={image} environment={environment} onClick={() => setSelecting(false)} />
         <ul class={style.grid} selecting={selecting}>
           {items}
+          {imagesAllLoaded && items.length == 1 && 
+            <li class={style.emptyState}>No images... yet 😪</li>
+          }
         </ul>
         <div
           id="loading-bar"

@@ -1,5 +1,12 @@
 .home {
+  min-height: calc(100vh - 5rem);
+}
 
+.header {
+  font-size: 4rem;
+  font-style: italic;
+  font-weight: 800;
+  text-align: left;
 }
 
 .fab {

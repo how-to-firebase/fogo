@@ -29,7 +29,7 @@
   background: rgba(25, 25, 25, 0.5);
   cursor: pointer;
   display: none;
-  padding: .5rem 1rem .5rem 3rem;
+  padding: .7rem 1rem .7rem 3rem;
   color: white;
   text-align: right;
   white-space: nowrap;
@@ -111,6 +111,12 @@
 .item[is-selected] .icon {
   display: inherit;
   fill: var(--mdc-theme-primary) !important;
+}
+
+.emptyState {
+  font-size: 5rem;
+  text-align: center;
+  width: 100%;
 }
 
 .loadMore {

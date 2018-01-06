@@ -12,6 +12,7 @@ export * from './setImagesWidth.action';
 export * from './setPath.action';
 export * from './setSearch.action';
 export * from './setSearching.action';
+export * from './setSearchResults.action';
 export * from './setSelecting.action';
 export * from './setToken.action';
 export * from './toggleMenu.action';

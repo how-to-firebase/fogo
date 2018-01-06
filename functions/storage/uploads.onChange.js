@@ -53,13 +53,11 @@ function getExif(file) {
 }
 function getPayload(data, env, exif, path) {
   const environment = path[0];
+  const created = Date.now();
   const filename = path[path.length - 1];
-  const payload = Object.assign(
-    data,
-    env,
-    { environment, created: Date.now() },
-    { search: { environment, filename } }
-  );
+  const { name } = data;
+  const search = { environment, filename, name };
+  const payload = Object.assign(data, env, { environment, created, search });
   return mergeExif(payload, exif);
 }
 

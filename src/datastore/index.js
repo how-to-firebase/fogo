@@ -14,6 +14,8 @@ const store = createStore({
   listState: null,
   path: null,
   search: '',
+  searching: false,
+  searchResults: null,
   selecting: false,
   selection: new Set(),
   showMenu: false,
