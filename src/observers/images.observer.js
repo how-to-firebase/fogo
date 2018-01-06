@@ -6,7 +6,7 @@ export function imagesObserver({ environment, lastCreated }) {
     const orderedCollection = window.firebase
       .firestore()
       .collection(uploads)
-      .where('isProduction', '==', true)
+      .where('environment', '==', environment.environment)
       .where('created', '>', lastCreated)
       .orderBy('created', 'desc');
 

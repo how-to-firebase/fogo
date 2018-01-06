@@ -15,10 +15,7 @@ export default connect('showMenu', actions)(({ showMenu, toggleMenu }) => (
       <Drawer.TemporaryDrawerContent>
         <List className={style.list}>
           <Link activeClassName="active" href="/images">
-            <List.LinkItem className={style.item}>Home</List.LinkItem>
-          </Link>
-          <Link activeClassName="active" href="/play">
-            <List.LinkItem className={style.item}>Play</List.LinkItem>
+            <List.LinkItem className={style.item}>Images</List.LinkItem>
           </Link>
           <Link activeClassName="active" href="/login">
             <List.LinkItem className={style.item}>Sign Out</List.LinkItem>

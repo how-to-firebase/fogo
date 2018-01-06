@@ -9,7 +9,7 @@ module.exports = ({ environment }) => event => {
     return Promise.resolve({ skipped: true });
   } else {
     const admin = adminUtil(environment);
-    const doc = getDoc(admin, environment, md5Hash);
+    const doc = getDoc({ admin, environment, md5Hash, path });
     const file = getFile(admin, name);
 
     return resourceState == 'not_exists'
@@ -20,13 +20,13 @@ module.exports = ({ environment }) => event => {
   }
 };
 
-function getDoc(admin, environment, md5Hash) {
+function getDoc({ admin, environment, md5Hash, path }) {
   const uploads = collectionsUtil(environment).get('uploads');
-  const { nodeEnv } = environment;
+  const root = path[0];
   return admin
     .firestore()
     .collection(uploads)
-    .doc(`${nodeEnv}-${md5Hash}`);
+    .doc(`${root}-${md5Hash}`);
 }
 
 function getFile(admin, name) {

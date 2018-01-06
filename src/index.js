@@ -23,7 +23,7 @@ import Snackbar from 'preact-material-components/Snackbar';
 import 'preact-material-components/Snackbar/style.css';
 
 // Views
-import { HomeView } from './components/views';
+import { ImagesView } from './components/views';
 
 export default class Fogo extends Component {
   componentWillMount() {
@@ -56,8 +56,7 @@ export default class Fogo extends Component {
           <div class="full-height router-wrapper">
             <Router>
               <FirebaseAuthentication google path="/login" />
-              <HomeView path="/images" environment={environment} />
-              <div path="/play">Path: /play</div>
+              <ImagesView path="/images" environment={environment} />
               <StorageUploader
                 path="/upload"
                 mime-types="image/jpeg,image/gif,image/png"
