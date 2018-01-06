@@ -172,9 +172,8 @@ export default class Images extends Component {
         <ImageDetail image={image} environment={environment} onClick={() => setSelecting(false)} />
         <ul class={style.grid} selecting={selecting}>
           {items}
-          {imagesAllLoaded && items.length == 1 && 
-            <li class={style.emptyState}>No images... yet 😪</li>
-          }
+          {imagesAllLoaded &&
+            items.length == 1 && <li class={style.emptyState}>No images... yet 😪</li>}
         </ul>
         <div
           id="loading-bar"
@@ -287,7 +286,8 @@ function getImageRow({ image, selection, defaultWidth, copyClick, imageDetailCli
   if (image.isGrower) {
     li = <li style={`width: ${image.width}px;`} />;
   } else {
-    const id = image.__id;
+    const { __id: id, _highlightResult: highlightResult } = image;
+    console.log('highlightResult', highlightResult);
     const name = image.name.split('/').pop();
     const isSelected = selection.has(id);
     const markdown = getMarkdown(image);
@@ -310,9 +310,13 @@ function getImageRow({ image, selection, defaultWidth, copyClick, imageDetailCli
           <img src={openWith} alt="open image detail" onClick={imageDetailClick} />
           <img src={contentCopy} alt="copy image markdown" onClick={copyClick} />
         </div>
-        <div class={style.description} onClick={selectClick}>
-          {name}
-        </div>
+        <div
+          class={style.description}
+          onClick={selectClick}
+          dangerouslySetInnerHTML={{
+            __html: (highlightResult && highlightResult.filename.value) || name,
+          }}
+        />
         <span class={style.markdown} copy>
           {markdown}
         </span>

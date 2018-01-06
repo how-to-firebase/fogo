@@ -14,7 +14,7 @@ module.exports = ({ environment }) => event => {
     promise = index.deleteObject(id);
   } else {
     const { search } = data;
-    const record = Object.assign({ objectID: id }, { search });
+    const record = Object.assign({ objectID: id }, search);
     promise = index.addObject(record);
   }
 

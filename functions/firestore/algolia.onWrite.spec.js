@@ -27,7 +27,7 @@ describe('algoliaOnWrite', () => {
 
   const id = 'fake-id';
   const data = {
-    search: 'fake search',
+    search: { filename: 'fake filename' },
   };
   let event;
   beforeEach(() => {
@@ -47,7 +47,7 @@ describe('algoliaOnWrite', () => {
   it('should call addObject', done => {
     fn(event).then(result => {
       const { search } = data;
-      const record = { objectID: id, search };
+      const record = Object.assign({ objectID: id }, search);
       expect(addObject).toHaveBeenCalledWith(record);
       done();
     });

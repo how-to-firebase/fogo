@@ -29,7 +29,7 @@
   background: rgba(25, 25, 25, 0.5);
   cursor: pointer;
   display: none;
-  padding: .7rem 1rem .7rem 3rem;
+  padding: 0.7rem 1rem 0.7rem 3rem;
   color: white;
   text-align: right;
   white-space: nowrap;
@@ -42,6 +42,10 @@
   left: 0;
 
   z-index: 2;
+
+  em {
+    color: var(--mdc-theme-primary);
+  }
 }
 
 .actions {
@@ -49,7 +53,7 @@
   align-items: center;
   justify-content: space-evenly;
 
-  background: rgba(0, 0, 0, .9);
+  background: rgba(0, 0, 0, 0.9);
 
   position: absolute;
   top: 0;
@@ -90,15 +94,14 @@
 
 .icon {
   position: absolute;
-  top: .5rem;
-  left: .5rem;
+  top: 0.5rem;
+  left: 0.5rem;
 
   cursor: pointer;
   display: none;
   z-index: 3;
 
-  fill: #DDD;
-
+  fill: #ddd;
 }
 
 .markdown {
@@ -141,11 +144,10 @@
   .icon {
     display: inherit;
     background: none;
-    border-color: #DDD;
+    border-color: #ddd;
     color: transparent;
   }
 
-  
   .description {
     display: block;
   }

@@ -18,10 +18,15 @@ export function searchObserver({ environment }) {
       if (search && search != lastSearched) {
         timer = setTimeout(() => {
           lastSearched = search;
-          index.search(search).then(results => {
-            const hits = results.hits.map(result => ({ __id: result.objectID, ...result.search }));
-            observer.next({ ...results, hits });
-          });
+          index
+            .search(search, { facetFilters: `environment:${environment.environment}` })
+            .then(results => {
+              const hits = results.hits.map(result => ({
+                __id: result.objectID,
+                ...result,
+              }));
+              observer.next({ ...results, hits });
+            });
         }, timeout);
       }
     });
