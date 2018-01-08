@@ -1,11 +1,14 @@
 .form {
   display: flex;
   align-items: center;
-
 }
 
 .tagsInput {
   flex-grow: 1;
+}
+
+.globalTagItems {
+  padding: 0;
 }
 
 .list {
@@ -16,11 +19,14 @@
     display: flex;
     margin-bottom: 1rem;
   }
-
 }
 
 .secondary {
   padding: 0 1rem;
+
+  h3 {
+    margin-top: 0;
+  }
 }
 
 .image {
@@ -29,4 +35,23 @@
   background-position: center center;
   background-repeat: no-repeat;
   background-color: #fafafa;
+}
+
+.tagItems {
+  padding: 0;
+}
+
+.tagItem {
+  display: flex;
+  align-items: center;
+
+  font-size: 2rem;
+
+  img {
+    background: var(--mdc-theme-secondary-dark);
+    border-radius: 50%;
+    padding: 4px;
+    margin-right: 1rem;
+    cursor: pointer;
+  }
 }
