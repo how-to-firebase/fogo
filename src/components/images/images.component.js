@@ -1,6 +1,5 @@
 import { Component } from 'preact';
 import style from './images.scss';
-console.log('style', style);
 import { connect } from 'unistore';
 import { store, actions, mappedActions } from '../../datastore';
 import { imagesObserver } from '../../observers';
@@ -230,8 +229,8 @@ async function evaluateLoadingPosition({ pageSize: limit, environment, images })
 function addImageWidth({ image, height, defaultWidth }) {
   let width = defaultWidth;
   image = { ...image };
-  if (image.tags) {
-    const { ImageHeight, ImageWidth } = image.tags;
+  if (image.exifTags) {
+    const { ImageHeight, ImageWidth } = image.exifTags;
     if (ImageHeight && ImageWidth) {
       width = height / (ImageHeight / ImageWidth);
     }

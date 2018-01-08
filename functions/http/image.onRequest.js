@@ -199,14 +199,10 @@ function getSignedUrl(file) {
 }
 
 function saveDoc(doc, versionName, version) {
-  let { versions, search } = doc.data();
+  let { versions } = doc.data();
   if (!versions) {
     versions = {};
   }
   versions[versionName] = version;
-  if (!search) {
-    search = {};
-  }
-  search.versions = versions;
-  return doc.ref.update({ versions, search }).then(() => version);
+  return doc.ref.update({ versions }).then(() => version);
 }

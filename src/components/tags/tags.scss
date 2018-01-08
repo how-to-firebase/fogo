@@ -1,0 +1,32 @@
+.form {
+  display: flex;
+  align-items: center;
+
+}
+
+.tagsInput {
+  flex-grow: 1;
+}
+
+.list {
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    margin-bottom: 1rem;
+  }
+
+}
+
+.secondary {
+  padding: 0 1rem;
+}
+
+.image {
+  width: 200px;
+  height: 200px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: #fafafa;
+}

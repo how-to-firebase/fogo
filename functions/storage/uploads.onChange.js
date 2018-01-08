@@ -55,18 +55,16 @@ function getPayload(data, env, exif, path) {
   const environment = path[0];
   const created = Date.now();
   const filename = path[path.length - 1];
-  const { name } = data;
-  const search = { environment, filename, name };
-  const payload = Object.assign(data, env, { environment, created, search });
+  const payload = Object.assign(data, env, { environment, created, filename });
   return mergeExif(payload, exif);
 }
 
 function mergeExif(payload, exif) {
-  const { tags } = exif;
+  const { tags: exifTags } = exif;
   let merged = payload;
 
-  if (tags && tags.CreateDate) {
-    merged = Object.assign({ CreateDate: tags.CreateDate || Date.now(), tags }, payload);
+  if (exifTags && exifTags.CreateDate) {
+    merged = Object.assign({ CreateDate: exifTags.CreateDate || Date.now(), exifTags }, payload);
   }
   return merged;
 }

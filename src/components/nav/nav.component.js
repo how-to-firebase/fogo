@@ -1,6 +1,7 @@
 import style from './nav.scss';
 import { connect } from 'unistore';
 import { actions } from '../../datastore';
+import { Link } from 'preact-router/match';
 
 // Preact Material Components
 import Button from 'preact-material-components/Button';
@@ -8,7 +9,7 @@ import Toolbar from 'preact-material-components/Toolbar';
 import 'preact-material-components/Button/style.css';
 import 'preact-material-components/Toolbar/style.css';
 
-import Search from "../search/search.component";
+import Search from '../search/search.component';
 
 // svg
 import add from '../../assets/svg/add.svg';
@@ -33,12 +34,9 @@ export default connect('showMenu,path,selection', actions)(
               <Search />,
               <div>
                 {!!selection.size && [
-                  <img
-                    class={style.icon}
-                    src={add}
-                    alt="Add to gallery"
-                    onClick={addSelectionToGallery}
-                  />,
+                  <Link href="/tags">
+                    <img class={style.icon} src={add} alt="Tags" onClick={addSelectionToGallery} />
+                  </Link>,
                   <img
                     class={style.icon}
                     src={deleteSvg}

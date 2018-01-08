@@ -8,13 +8,13 @@ module.exports = ({ environment }) => event => {
   const id = event.data.id;
   const data = (event.data.exists && event.data.data()) || null;
 
-  let promise;
+  let promise = Promise.resolve();
 
   if (!data) {
     promise = index.deleteObject(id);
-  } else {
-    const { search } = data;
-    const record = Object.assign({ objectID: id }, search);
+  } else if (!data.isTest) {
+    const { environment, filename, versions } = data;
+    const record = Object.assign({ objectID: id }, { environment, filename, versions });
     promise = index.addObject(record);
   }
 

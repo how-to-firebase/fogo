@@ -1,11 +1,15 @@
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /uploads {
+      allow write: if request.auth.token.admin == true ;
+    }
+
     match /uploads/{document=**} {
       allow read;
     }
 
     match /users {
-      allow read, write: if request.auth.admin == true ;
+      allow read, write: if request.auth.token.admin == true ;
     }
   }
 }
