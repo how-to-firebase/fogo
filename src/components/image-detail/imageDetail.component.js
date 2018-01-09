@@ -23,12 +23,12 @@ export default function imageDetail({ image }) {
         />
         <ul class={style.description}>
           <li>{image.name.split('/').pop()}</li>
-          {image.tags && (
+          {image.exifTags && (
             <li>
-              {image.contentType} @ {image.tags.ExifImageHeight}x{image.tags.ExifImageWidth}
+              {image.contentType} @ {image.exifTags.ExifImageHeight}x{image.exifTags.ExifImageWidth}
             </li>
           )}
-          {image.tags && <li>{new Date(image.tags.CreateDate).toString()}</li>}
+          {image.exifTags && <li>{new Date(image.exifTags.CreateDate).toString()}</li>}
           {versionRows}
         </ul>
       </div>
@@ -48,22 +48,22 @@ function getVersion(image) {
   return versions && versions[versionName];
 }
 
-function getVersionRows({ tags, versions }) {
+function getVersionRows({ exifTags, versions }) {
   return Object.keys(versions).map(key => {
     const version = versions[key];
     if (version != 'loading') {
-      const dimensions = getDimensions({ tags, key });
+      const dimensions = getDimensions({ exifTags, key });
       const url = getUrl(version);
       const markdown = getMarkdown(version);
 
       return [
         <li class={style.copy} onClick={handleCopyClick}>
-          <img src={contentCopy} alt="copy url"/>
+          <img src={contentCopy} alt="copy url" />
           <span class={style.dimensions}>{dimensions}</span>
           <span>{url}</span>
         </li>,
         <li class={style.copy} onClick={handleCopyClick}>
-          <img src={contentCopy} alt="copy markdown"/>
+          <img src={contentCopy} alt="copy markdown" />
           <span class={style.dimensions} />
           <span>{markdown}</span>
         </li>,
@@ -72,9 +72,9 @@ function getVersionRows({ tags, versions }) {
   });
 }
 
-function getDimensions({ tags, key }) {
-  const { ExifImageHeight, ExifImageWidth } = tags || {};
-  return (key == 'original' && tags && `${ExifImageWidth}x${ExifImageHeight}`) || key;
+function getDimensions({ exifTags, key }) {
+  const { ExifImageHeight, ExifImageWidth } = exifTags || {};
+  return (key == 'original' && exifTags && `${ExifImageWidth}x${ExifImageHeight}`) || key;
 }
 
 function getMarkdown(version) {

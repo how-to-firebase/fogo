@@ -18,11 +18,10 @@ const {
 } = mappedActions;
 
 // Svg
-import spinner from '../../assets/svg/spinner.svg';
-import threeDots from '../../assets/svg/three-dots.svg';
-import contentCopy from '../../assets/svg/content-copy.svg';
-import openWith from '../../assets/svg/open-with.svg';
-import checkCircle from '../../assets/svg/check-circle.svg';
+const spinner = '/assets/svg/spinner.svg';
+const threeDots = '/assets/svg/three-dots.svg';
+const contentCopy = '/assets/svg/content-copy.svg';
+const openWith = '/assets/svg/open-with.svg';
 
 // Components
 import ImageDetail from '../image-detail/imageDetail.component';
@@ -64,42 +63,14 @@ const VERSION_NAME = `x${HEIGHT}`;
 )
 export default class Images extends Component {
   componentWillMount() {
-    const { environment, pageSize } = this.props;
-
-    this.__debouncedEvaluateLoading = debounce(() => {
-      const { images, imagesAllLoaded } = store.getState();
-
-      if (!imagesAllLoaded) {
-        evaluateLoadingPosition({ pageSize, environment, images });
-      }
-    }, 500);
-
-    this.__handleScroll = this.__debouncedEvaluateLoading;
+    this.__evaluateLoadingPosition = getEvaluateLoadingPosition(this.props);
+    window.document.addEventListener('scroll', this.__evaluateLoadingPosition);
     window.document.addEventListener('keyup', handleKeyup);
-    window.document.addEventListener('scroll', this.__handleScroll);
 
-    const { images, timestamp } = store.getState();
-    const lastCreated =
-      (images.length &&
-        images.reduce((timestamp, image) => {
-          return Math.max(timestamp, image.created);
-        }, 0)) ||
-      timestamp;
-
+    const { environment } = this.props;
+    const lastCreated = getLastCreated(store.getState());
     this.__imagesSubscription = imagesObserver({ environment, lastCreated }).subscribe(
-      newImages => {
-        const { images } = store.getState();
-        const existingIds = new Set(images.map(x => x.__id));
-        const differenceIds = new Set(
-          newImages.map(x => x.__id).filter(id => !existingIds.has(id))
-        );
-        const imagesToAdd = newImages.filter(image => differenceIds.has(image.__id));
-
-        imagesToAdd.forEach(image => {
-          addImage(image);
-          loadImageVersionIfNecessary({ environment, image, versionName: VERSION_NAME });
-        });
-      }
+      handleNewImages({ environment, store })
     );
   }
 
@@ -110,14 +81,14 @@ export default class Images extends Component {
   }
 
   componentWillUnmount() {
+    window.document.removeEventListener('scroll', this.__evaluateLoadingPosition);
     window.document.removeEventListener('keyup', handleKeyup);
-    window.document.removeEventListener('scroll', this.__handleScroll);
     removeEventListener('resize', this.__handleResize);
     this.__imagesSubscription.unsubscribe();
   }
 
   componentDidUpdate() {
-    this.__debouncedEvaluateLoading();
+    this.__evaluateLoadingPosition();
   }
 
   handleResize() {
@@ -139,36 +110,25 @@ export default class Images extends Component {
   }) {
     const base = this.base;
     const imageDetailClick = getImageDetailClickHandler({
+      base,
       environment,
       images,
-      base,
       selection,
-      addSelection,
-      removeSelection,
-      setImage,
     });
     const selectClick = getSelectClickHandler({
       base,
       isAdmin,
       selection,
-      addSelection,
-      setSelecting,
-      removeSelection,
     });
     const copyClick = getCopyClickHandler();
 
-    const imagesToDecorate =
-      (searching && search && ((searchResults && searchResults.hits) || [])) || images;
-    const decoratedImages = imagesToDecorate
-      .map(image => addImageWidth({ image, height: HEIGHT, defaultWidth: DEFAULT_WIDTH }))
-      .map(image => addImageVersion({ image, height: HEIGHT }));
+    const decoratedImages = getDecoratedImages({ searching, search, searchResults, images });
     const items = justifyWidths({ images: decoratedImages, gutter: GUTTER, imagesWidth }).map(
       image =>
         getImageRow({
           image,
           isAdmin,
           selection,
-          defaultWidth: DEFAULT_WIDTH,
           copyClick,
           imageDetailClick,
           selectClick,
@@ -195,6 +155,17 @@ export default class Images extends Component {
   }
 }
 
+// Lifecycle functions
+function getEvaluateLoadingPosition({ environment, pageSize }) {
+  return debounce(() => {
+    const { images, imagesAllLoaded } = store.getState();
+
+    if (!imagesAllLoaded) {
+      evaluateLoadingPosition({ pageSize, environment, images });
+    }
+  }, 500);
+}
+
 function debounce(fn, millis) {
   let timer;
 
@@ -206,6 +177,50 @@ function debounce(fn, millis) {
   };
 }
 
+async function evaluateLoadingPosition({ pageSize: limit, environment, images }) {
+  const loadingBar = window.document.getElementById('loading-bar');
+  const scroll = window.document.body.parentElement.scrollTop;
+  const top = loadingBar.getBoundingClientRect().top;
+  const viewportHeight = window.visualViewport.height;
+
+  let imagesToLoad = images;
+  if (top < viewportHeight) {
+    const cursor = images[images.length - 1];
+    const { results, imagesAllLoaded } = await imagesQuery({ environment, cursor, limit });
+    addImages(results);
+    setImagesAllLoaded(imagesAllLoaded);
+    imagesToLoad = results;
+  }
+
+  imagesToLoad.forEach(image =>
+    loadImageVersionIfNecessary({ environment, image, versionName: VERSION_NAME })
+  );
+}
+
+function getLastCreated({ images, timestamp }) {
+  return (
+    (images.length &&
+      images.reduce((timestamp, image) => {
+        return Math.max(timestamp, image.created);
+      }, 0)) ||
+    timestamp
+  );
+}
+
+function handleNewImages({ environment, store }) {
+  return newImages => {
+    const { images } = store.getState();
+    const existingIds = new Set(images.map(x => x.__id));
+    const differenceIds = new Set(newImages.map(x => x.__id).filter(id => !existingIds.has(id)));
+    const imagesToAdd = newImages.filter(image => differenceIds.has(image.__id));
+
+    imagesToAdd.forEach(image => {
+      addImage(image);
+      loadImageVersionIfNecessary({ environment, image, versionName: VERSION_NAME });
+    });
+  };
+}
+
 function handleKeyup({ key }) {
   if (key == 'Escape') {
     setSelecting(false);
@@ -214,25 +229,95 @@ function handleKeyup({ key }) {
   }
 }
 
-async function evaluateLoadingPosition({ pageSize: limit, environment, images }) {
-  const loadingBar = window.document.getElementById('loading-bar');
-  const scroll = window.document.body.parentElement.scrollTop;
-  const top = loadingBar.getBoundingClientRect().top;
-  const viewportHeight = window.visualViewport.height;
-
-  if (top < viewportHeight) {
-    const cursor = images[images.length - 1];
-    const { results, imagesAllLoaded } = await imagesQuery({ environment, cursor, limit });
-    addImages(results);
-    setImagesAllLoaded(imagesAllLoaded);
-    results.forEach(image =>
-      loadImageVersionIfNecessary({ environment, image, versionName: VERSION_NAME })
-    );
-  }
+// Render event handlers
+function getSelectClickHandler({ base, isAdmin, selection }) {
+  return e => {
+    e.stopPropagation();
+    if (isAdmin) {
+      const id = getId(e.target);
+      const isSelected = selection.has(id);
+      if (!isSelected) {
+        if (e.shiftKey) {
+          multiSelect({ id, base, addSelection });
+        } else {
+          addSelection(id);
+        }
+      } else {
+        if (selection.size <= 1) {
+          setSelecting(false);
+        }
+        removeSelection(id);
+      }
+    }
+  };
 }
 
-function addImageWidth({ image, height, defaultWidth }) {
-  let width = defaultWidth;
+function getImageDetailClickHandler({ base, environment, images, selection }) {
+  return e => {
+    const id = getId(e.target);
+    const isSelected = selection.has(id);
+
+    if (e.ctrlKey) {
+      if (!isSelected) {
+        addSelection(id);
+      } else {
+        removeSelection(id);
+      }
+    } else if (e.shiftKey) {
+      multiSelect({ id, base, addSelection });
+    } else {
+      const image = images.find(image => image.__id == id);
+      setImage(image);
+      loadImageVersionIfNecessary({ environment, image });
+    }
+  };
+}
+
+function getId(el) {
+  const itemId = el.getAttribute('item-id');
+  return itemId || (el.parentElement && getId(el.parentElement));
+}
+
+function multiSelect({ id, base, addSelection }) {
+  const items = Array.from(base.querySelectorAll('li'));
+  const firstSelectedItemIndex = items.findIndex(item => item.getAttribute('is-selected'));
+  const clickedItemIndex = items.findIndex(item => item.getAttribute('item-id') == id);
+  const startIndex = Math.min(firstSelectedItemIndex, clickedItemIndex);
+  const endIndex = Math.max(firstSelectedItemIndex, clickedItemIndex);
+  const ids = items.slice(startIndex, endIndex + 1).map(item => item.getAttribute('item-id'));
+  addSelection((ids.length && ids) || id);
+}
+
+function getCopyClickHandler() {
+  return e => {
+    const el = e.target.parentElement.parentElement.querySelector('[copy]');
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    document.execCommand('copy');
+
+    fireAlert('Copied to clipboard');
+  };
+}
+
+function fireAlert(detail) {
+  dispatchEvent(new CustomEvent('alert', { detail, bubbles: true }));
+}
+
+// Render main
+function getDecoratedImages({ searching, search, searchResults, images }) {
+  const imagesToDecorate =
+    (searching && search && ((searchResults && searchResults.hits) || [])) || images;
+  return imagesToDecorate
+    .map(image => addImageWidth({ image }))
+    .map(image => addImageVersion({ image }));
+}
+
+function addImageWidth({ image }) {
+  const height = HEIGHT;
+  let width = DEFAULT_WIDTH;
   image = { ...image };
   if (image.exifTags) {
     const { ImageHeight, ImageWidth } = image.exifTags;
@@ -244,7 +329,7 @@ function addImageWidth({ image, height, defaultWidth }) {
   return image;
 }
 
-function addImageVersion({ height, image }) {
+function addImageVersion({ image }) {
   const version = (image.versions && image.versions[VERSION_NAME]) || {};
   image = { ...image };
   image.version = version;
@@ -289,15 +374,8 @@ function sumRowWidths(row) {
   return row.reduce((sum, image) => sum + image.width, 0);
 }
 
-function getImageRow({
-  image,
-  isAdmin,
-  selection,
-  defaultWidth,
-  copyClick,
-  imageDetailClick,
-  selectClick,
-}) {
+// Render image rows
+function getImageRow({ image, isAdmin, selection, copyClick, imageDetailClick, selectClick }) {
   let li;
   if (image.isGrower) {
     li = <li style={`width: ${image.width}px;`} />;
@@ -307,22 +385,11 @@ function getImageRow({
     const isSelected = selection.has(id);
     const markdown = getMarkdown(image);
     const tagItems = getTagsItems(image);
+    const selectSvg = getSelectSvg({ isAdmin, selectClick });
 
     li = (
       <li item-id={id} class={style.item} is-selected={isSelected}>
-        {isAdmin && (
-          <svg
-            class={style.icon}
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-            onClick={selectClick}
-          >
-            <path fill="none" d="M0 0h24v24H0z" />
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-          </svg>
-        )}
+        {selectSvg}
 
         <div class={style.actions}>
           <img src={openWith} alt="open image detail" onClick={imageDetailClick} />
@@ -343,7 +410,7 @@ function getImageRow({
           <div
             class={style.img}
             style={`background-image: url('${image.version.url ||
-              spinner}'); width: ${image.width || defaultWidth}px;`}
+              spinner}'); width: ${image.width || DEFAULT_WIDTH}px;`}
           />
         </div>
       </li>
@@ -359,7 +426,9 @@ function getMarkdown(image) {
 }
 
 function getTagsItems({ tags, _highlightResult: highlightResult }) {
-  const decoratedTags = (highlightResult && highlightResult.tags.map(x => x.value)) || tags;
+  const searchTag =
+    highlightResult && highlightResult.tags && highlightResult.tags.map(x => x.value);
+  const decoratedTags = searchTag || tags || [];
   return decoratedTags.map(tag => {
     return (
       <li
@@ -371,93 +440,20 @@ function getTagsItems({ tags, _highlightResult: highlightResult }) {
   });
 }
 
-function getSelectClickHandler({
-  base,
-  isAdmin,
-  selection,
-  addSelection,
-  setSelecting,
-  removeSelection,
-}) {
-  return e => {
-    e.stopPropagation();
-    if (isAdmin) {
-      const id = getId(e.target);
-      const isSelected = selection.has(id);
-      if (!isSelected) {
-        if (e.shiftKey) {
-          multiSelect({ id, base });
-        } else {
-          addSelection(id);
-        }
-      } else {
-        if (selection.size <= 1) {
-          setSelecting(false);
-        }
-        removeSelection(id);
-      }
-    }
-  };
-}
-
-function getImageDetailClickHandler({
-  environment,
-  images,
-  base,
-  selection,
-  addSelection,
-  removeSelection,
-  setImage,
-}) {
-  return e => {
-    const id = getId(e.target);
-    const isSelected = selection.has(id);
-
-    if (e.ctrlKey) {
-      if (!isSelected) {
-        addSelection(id);
-      } else {
-        removeSelection(id);
-      }
-    } else if (e.shiftKey) {
-      multiSelect({ id, base });
-    } else {
-      const image = images.find(image => image.__id == id);
-      setImage(image);
-      loadImageVersionIfNecessary({ environment, image });
-    }
-  };
-}
-
-function getCopyClickHandler() {
-  return e => {
-    const el = e.target.parentElement.parentElement.querySelector('[copy]');
-    const selection = window.getSelection();
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    selection.removeAllRanges();
-    selection.addRange(range);
-    document.execCommand('copy');
-
-    fireAlert('Copied to clipboard');
-  };
-}
-
-function fireAlert(detail) {
-  dispatchEvent(new CustomEvent('alert', { detail, bubbles: true }));
-}
-
-function multiSelect({ id, base }) {
-  const items = Array.from(base.querySelectorAll('li'));
-  const firstSelectedItemIndex = items.findIndex(item => item.getAttribute('is-selected'));
-  const clickedItemIndex = items.findIndex(item => item.getAttribute('item-id') == id);
-  const startIndex = Math.min(firstSelectedItemIndex, clickedItemIndex);
-  const endIndex = Math.max(firstSelectedItemIndex, clickedItemIndex);
-  const ids = items.slice(startIndex, endIndex + 1).map(item => item.getAttribute('item-id'));
-  addSelection((ids.length && ids) || id);
-}
-
-function getId(el) {
-  const itemId = el.getAttribute('item-id');
-  return itemId || (el.parentElement && getId(el.parentElement));
+function getSelectSvg({ isAdmin, selectClick }) {
+  return (
+    isAdmin && (
+      <svg
+        class={style.icon}
+        height="24"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+        onClick={selectClick}
+      >
+        <path fill="none" d="M0 0h24v24H0z" />
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+      </svg>
+    )
+  );
 }
