@@ -1,12 +1,10 @@
-export async function imagesByTagQuery({ environment }) {
+export async function imagesByTagQuery({ environment, tag }) {
   const uploads = environment.collections.uploads;
-  const orderedCollection = window.firebase
+  const query = window.firebase
     .firestore()
     .collection(uploads)
-    .where('environment', '==', environment.environment)
-    .orderBy('created', 'desc');
-  const limitedCollection = orderedCollection.limit(+limit);
-  const query = (cursor && limitedCollection.startAfter(cursor.created)) || limitedCollection;
+    .where(`tags.${tag}`, '==', true)
+    .orderBy('created');
 
   const snapshot = await query.get();
   const results = snapshot.docs.map(doc => ({
@@ -14,8 +12,5 @@ export async function imagesByTagQuery({ environment }) {
     ...doc.data(),
   }));
 
-  return {
-    results,
-    imagesAllLoaded: results.length < +limit,
-  };
+  return results;
 }
