@@ -12,6 +12,7 @@ let startingState = {
   laggedPath: null,
   laggedCurrentUser: null,
   listState: null,
+  isAdmin: false,
   path: null,
   search: '',
   searching: false,
@@ -38,6 +39,8 @@ for (let i in rawActions) {
 
 store.subscribe(state => {
   const serialized = serialize(state);
+  const { currentUser } = state;
+
   localStorage.setItem('fogo-state', serialized);
   console.log('state', state);
 });

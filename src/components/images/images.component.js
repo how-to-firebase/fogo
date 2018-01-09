@@ -40,6 +40,7 @@ const VERSION_NAME = `x${HEIGHT}`;
     imagesAllLoaded,
     imagesWidth,
     image,
+    isAdmin,
     search,
     searching,
     searchResults,
@@ -52,6 +53,7 @@ const VERSION_NAME = `x${HEIGHT}`;
     imagesAllLoaded,
     imagesWidth,
     image,
+    isAdmin,
     search,
     searching,
     searchResults,
@@ -128,6 +130,7 @@ export default class Images extends Component {
     imagesAllLoaded,
     imagesWidth,
     image,
+    isAdmin,
     search,
     searching,
     searchResults,
@@ -146,6 +149,7 @@ export default class Images extends Component {
     });
     const selectClick = getSelectClickHandler({
       base,
+      isAdmin,
       selection,
       addSelection,
       setSelecting,
@@ -162,6 +166,7 @@ export default class Images extends Component {
       image =>
         getImageRow({
           image,
+          isAdmin,
           selection,
           defaultWidth: DEFAULT_WIDTH,
           copyClick,
@@ -173,7 +178,7 @@ export default class Images extends Component {
     return (
       <div>
         <ImageDetail image={image} environment={environment} onClick={() => setSelecting(false)} />
-        <ul class={style.grid} selecting={selecting}>
+        <ul class={style.grid} selecting={selecting} is-admin={isAdmin}>
           {items}
           {imagesAllLoaded &&
             items.length == 1 && <li class={style.emptyState}>No images... yet 😪</li>}
@@ -284,7 +289,15 @@ function sumRowWidths(row) {
   return row.reduce((sum, image) => sum + image.width, 0);
 }
 
-function getImageRow({ image, selection, defaultWidth, copyClick, imageDetailClick, selectClick }) {
+function getImageRow({
+  image,
+  isAdmin,
+  selection,
+  defaultWidth,
+  copyClick,
+  imageDetailClick,
+  selectClick,
+}) {
   let li;
   if (image.isGrower) {
     li = <li style={`width: ${image.width}px;`} />;
@@ -296,17 +309,19 @@ function getImageRow({ image, selection, defaultWidth, copyClick, imageDetailCli
 
     li = (
       <li item-id={id} class={style.item} is-selected={isSelected}>
-        <svg
-          class={style.icon}
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={selectClick}
-        >
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-        </svg>
+        {isAdmin && (
+          <svg
+            class={style.icon}
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+            onClick={selectClick}
+          >
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+        )}
 
         <div class={style.actions}>
           <img src={openWith} alt="open image detail" onClick={imageDetailClick} />
@@ -341,22 +356,31 @@ function getMarkdown(image) {
   return `![${name}](${url})`;
 }
 
-function getSelectClickHandler({ base, selection, addSelection, setSelecting, removeSelection }) {
+function getSelectClickHandler({
+  base,
+  isAdmin,
+  selection,
+  addSelection,
+  setSelecting,
+  removeSelection,
+}) {
   return e => {
     e.stopPropagation();
-    const id = getId(e.target);
-    const isSelected = selection.has(id);
-    if (!isSelected) {
-      if (e.shiftKey) {
-        multiSelect({ id, base });
+    if (isAdmin) {
+      const id = getId(e.target);
+      const isSelected = selection.has(id);
+      if (!isSelected) {
+        if (e.shiftKey) {
+          multiSelect({ id, base });
+        } else {
+          addSelection(id);
+        }
       } else {
-        addSelection(id);
+        if (selection.size <= 1) {
+          setSelecting(false);
+        }
+        removeSelection(id);
       }
-    } else {
-      if (selection.size <= 1) {
-        setSelecting(false);
-      }
-      removeSelection(id);
     }
   };
 }

@@ -8,7 +8,7 @@ function evaluatePath({ path, laggedPath, currentUser }) {
   const isOAuthRedirect = !laggedPath && currentUser && path == '/login';
 
   if (needsToLogIn && path != '/login') {
-    route('/login');
+    location.pathname = '/login';
   } else if (isOAuthRedirect) {
     route(laggedPath || '/');
   } else if (path == '/') {

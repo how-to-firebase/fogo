@@ -27,7 +27,6 @@
 
 .description {
   background: rgba(25, 25, 25, 0.5);
-  cursor: pointer;
   display: none;
   padding: 0.7rem 1rem 0.7rem 3rem;
   color: white;
@@ -150,5 +149,11 @@
 
   .description {
     display: block;
+  }
+}
+
+.grid[is-admin] {
+  .description {
+    cursor: pointer;
   }
 }

@@ -91,7 +91,7 @@ function registerIdTokenRefreshListener() {
     if (handler && laggedCurrentUser && currentUser && laggedCurrentUser.uid != currentUser.uid) {
       idTokenRefreshRef.off('value', handler);
       handler = null;
-    } else if (!handler && environment && currentUser.uid) {
+    } else if (!handler && environment && currentUser && currentUser.uid) {
       idTokenRefreshRef = getIdTokenRefreshRef({ environment, uid: currentUser.uid });
       handler = idTokenRefreshRef.on('value', snapshot => {
         getToken({ currentUser, force: true }).then(setToken);

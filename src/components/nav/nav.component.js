@@ -16,8 +16,17 @@ import add from '../../assets/svg/add.svg';
 import deleteSvg from '../../assets/svg/delete.svg';
 import menu from '../../assets/svg/menu.svg';
 
-export default connect('showMenu,path,selection', actions)(
-  ({ showMenu, path, selection, toggleMenu, deleteSelection, addSelectionToGallery }) => (
+export default connect('isAdmin,path,selection,showMenu,token', actions)(
+  ({
+    isAdmin,
+    path,
+    selection,
+    showMenu,
+    token,
+    toggleMenu,
+    deleteSelection,
+    addSelectionToGallery,
+  }) => (
     <Toolbar className={style['mdc-toolbar']}>
       <Toolbar.Row>
         <Toolbar.Section align-start={true} className={style['mdc-toolbar__section']}>
@@ -33,17 +42,23 @@ export default connect('showMenu,path,selection', actions)(
             {path == '/images' && [
               <Search />,
               <div>
-                {!!selection.size && [
-                  <Link href="/tags">
-                    <img class={style.icon} src={add} alt="Tags" onClick={addSelectionToGallery} />
-                  </Link>,
-                  <img
-                    class={style.icon}
-                    src={deleteSvg}
-                    alt="Delete images"
-                    onClick={deleteSelection}
-                  />,
-                ]}
+                {isAdmin &&
+                  !!selection.size && [
+                    <Link href="/tags">
+                      <img
+                        class={style.icon}
+                        src={add}
+                        alt="Tags"
+                        onClick={addSelectionToGallery}
+                      />
+                    </Link>,
+                    <img
+                      class={style.icon}
+                      src={deleteSvg}
+                      alt="Delete images"
+                      onClick={deleteSelection}
+                    />,
+                  ]}
               </div>,
             ]}
           </div>

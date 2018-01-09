@@ -41,7 +41,15 @@ export default connect('environment,images,selection', actions)(
             />
             <Button type="submit">Add Tag</Button>
           </form>
-          <ul class={style.globalTagItems}>{globalTagItems}</ul>
+
+          {!!globalTagItems.length && (
+            <div>
+              <h3 class={style.globalTagItemsTitle}>All Tags</h3>
+
+              <ul class={style.globalTagItems}>{globalTagItems}</ul>
+            </div>
+          )}
+
           <ul class={style.list}>{items}</ul>
         </div>
       );
@@ -63,7 +71,7 @@ function handleSubmit({ environment, images, selection }) {
 
     selection.forEach(id => {
       const image = images.find(image => image.__id == id);
-      const tags = new Set(images.tags || []);
+      const tags = new Set(image.tags || []);
       tags.add(hashtag);
       updateTagsQuery({ environment, id, tags });
     });
@@ -74,7 +82,7 @@ function getItem({ environment }) {
   return image => {
     const version = image.versions.x200;
     const name = image.name.split('/').pop();
-    const tagItems = image.tags.map(getTagItem({ environment, image }));
+    const tagItems = image.tags && image.tags.map(getTagItem({ environment, image }));
 
     return (
       <li>

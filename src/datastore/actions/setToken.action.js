@@ -1,3 +1,3 @@
 export function setToken(state, token) {
-  return { token };
+  return { token, isAdmin: token.admin };
 }
