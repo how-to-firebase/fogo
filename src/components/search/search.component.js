@@ -17,9 +17,12 @@ export default connect('search,searching', actions)(
     let input;
     function handleKeyup({ key }) {
       if (key == 'Escape') {
-        setSearching(false);
-        input.value = '';
-        input.blur();
+        if (input.value) {
+          input.value = ''; 
+        } else {
+          setSearching(false);
+          input.blur();
+        }
       }
     }
 

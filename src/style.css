@@ -1,11 +1,12 @@
-@import url("https://use.typekit.net/vjz5ruy.css");
+@import url('https://use.typekit.net/vjz5ruy.css');
 
-html, body {
+html,
+body {
   font-family: 'mr-eaves-modern', arial, sans-serif;
   font-size: 16px;
-	font-weight: 300;
+  font-weight: 300;
   margin: 0;
-  
+
   --mdc-theme-primary: #29b6f6;
   --mdc-theme-primary-light: #73e8ff;
   --mdc-theme-primary-dark: #0086c3;
@@ -24,7 +25,8 @@ a {
   text-decoration: none;
 }
 
-a, a:visited {
+a,
+a:visited {
   color: inherit;
 }
 
@@ -35,14 +37,14 @@ a.active a {
 }
 
 h1 {
-	text-align: center;
+  text-align: center;
 }
 
 .router-wrapper {
-	min-height: calc(100vh - 6rem);
+  min-height: calc(100vh - 6rem);
 
-	display: flex;
-	justify-content: center;
+  display: flex;
+  justify-content: center;
   align-items: center;
   padding-top: 4rem;
 }
@@ -57,7 +59,7 @@ h1 {
 }
 
 .storage-uploader .mdc-grid-list {
-  --mdc-theme-primary: rgba(0, 0, 0, .8);
+  --mdc-theme-primary: rgba(0, 0, 0, 0.8);
   --mdc-grid-list-tile-width: 20rem;
 }
 

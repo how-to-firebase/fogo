@@ -23,23 +23,30 @@ import Snackbar from 'preact-material-components/Snackbar';
 import 'preact-material-components/Snackbar/style.css';
 
 // Views
-import { ImagesView, TagsView } from './components/views';
+import { GalleryView, ImagesView, TagsView } from './components/views';
+
+const pathParts = new Set(location.pathname.split('/'));
+const isGallery = pathParts.has('gallery');
 
 export default class Fogo extends Component {
   componentWillMount() {
-    registerOnAuthStateChanged();
-
-    addEventListener('alert', e =>
-      this.snackbar.MDComponent.show({
-        message: e.detail,
-        timeout: 1000
-      })
-    );
+    if (!isGallery) {
+      registerOnAuthStateChanged();
+  
+      addEventListener('alert', e =>
+        this.snackbar.MDComponent.show({
+          message: e.detail,
+          timeout: 1000,
+        })
+      );
+    }
   }
 
   componentDidMount() {
-    registerStorageUploaderListeners();
-    registerIdTokenRefreshListener();
+    if (!isGallery) {
+      registerStorageUploaderListeners();
+      registerIdTokenRefreshListener();
+    }
   }
 
   render() {
@@ -48,24 +55,26 @@ export default class Fogo extends Component {
     return (
       <Provider store={store}>
         <div id="app-wrapper">
-          <Match path="/">{handlePath}</Match>
-          <Guard />
-          <Nav />
-          <Drawer />
-          <Snackbar ref={snackbar => (this.snackbar = snackbar)} style="z-index: 1000;" />
-          <div class="full-height router-wrapper">
-            <Router>
-              <FirebaseAuthentication google path="/login" />
-              <ImagesView path="/images" environment={environment} />
-              <TagsView path="/tags" />
-              <StorageUploader
-                path="/upload"
-                mime-types="image/jpeg,image/gif,image/png"
-                folder={environment.storage.path}
-              />
-              <div default>404</div>
-            </Router>
-          </div>
+          {(isGallery && <GalleryView environment={environment} />) || [
+            <Match path="/">{handlePath}</Match>,
+            <Guard />,
+            <Snackbar ref={snackbar => (this.snackbar = snackbar)} style="z-index: 1000;" />,
+            <Nav />,
+            <Drawer />,
+            <div class="full-height router-wrapper">
+              <Router>
+                <FirebaseAuthentication google path="/login" />
+                <ImagesView path="/images" environment={environment} />
+                <TagsView path="/tags" />
+                <StorageUploader
+                  path="/upload"
+                  mime-types="image/jpeg,image/gif,image/png"
+                  folder={environment.storage.path}
+                />
+                <div default>404</div>
+              </Router>
+            </div>,
+          ]}
         </div>
       </Provider>
     );

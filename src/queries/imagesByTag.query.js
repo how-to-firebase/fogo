@@ -1,4 +1,4 @@
-export async function imagesQuery({ environment, cursor, limit = 10 }) {
+export async function imagesByTagQuery({ environment }) {
   const uploads = environment.collections.uploads;
   const orderedCollection = window.firebase
     .firestore()
@@ -9,16 +9,10 @@ export async function imagesQuery({ environment, cursor, limit = 10 }) {
   const query = (cursor && limitedCollection.startAfter(cursor.created)) || limitedCollection;
 
   const snapshot = await query.get();
-  const results = snapshot.docs.map(doc => {
-    const image = {
-      __id: doc.id,
-      ...doc.data(),
-    };
-    if (image.tags) {
-      image.tags = Object.keys(image.tags);
-    }
-    return image;
-  });
+  const results = snapshot.docs.map(doc => ({
+    __id: doc.id,
+    ...doc.data(),
+  }));
 
   return {
     results,

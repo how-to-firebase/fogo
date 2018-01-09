@@ -9,7 +9,10 @@ export async function updateTagsQuery({ environment, id, tags }) {
     .collection(uploads)
     .doc(id);
 
-  tags = Array.from(tags);
+  tags = Array.from(tags).reduce((tags, tag) => {
+    tags[tag] = true;
+    return tags;
+  }, {});
   await doc.set({ tags }, { merge: true });
   const updatedImage = await imageQuery(environment, id);
   updateImage(updatedImage);

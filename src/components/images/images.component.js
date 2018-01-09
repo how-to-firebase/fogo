@@ -141,7 +141,7 @@ export default class Images extends Component {
         <ul class={style.grid} selecting={selecting} is-admin={isAdmin}>
           {items}
           {imagesAllLoaded &&
-            items.length == 1 && <li class={style.emptyState}>No images... yet 😪</li>}
+            items.length == 1 && <li class={style.emptyState}>Nothing to show 😪</li>}
         </ul>
         <div
           id="loading-bar"

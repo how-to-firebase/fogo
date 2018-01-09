@@ -1,7 +1,6 @@
 import style from './tags.view.scss';
 import { connect } from 'unistore';
 import { actions } from '../../datastore';
-import 'preact-material-components/Fab/style.css';
 
 import Tags from '../tags/tags.component';
 
