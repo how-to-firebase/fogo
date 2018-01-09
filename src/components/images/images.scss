@@ -68,6 +68,11 @@
     color: white;
     padding: 2px 5px;
     border-radius: 2px;
+
+    em {
+      color: var(--mdc-theme-primary);
+      font-style: normal;
+    }
   }
 }
 

@@ -3,6 +3,6 @@ export function addSelection({ selection }, ids) {
     ids = [ids];
   }
   
-  ids.forEach(id => selection.add(id));
+  ids.forEach(id => id && selection.add(id));
   return { selection: new Set(selection), selecting: true };
 }

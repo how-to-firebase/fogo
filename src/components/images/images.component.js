@@ -303,7 +303,7 @@ function getImageRow({
     li = <li style={`width: ${image.width}px;`} />;
   } else {
     const { __id: id, _highlightResult: highlightResult } = image;
-    const name = image.name.split('/').pop();
+    const name = image.filename;
     const isSelected = selection.has(id);
     const markdown = getMarkdown(image);
     const tagItems = getTagsItems(image);
@@ -354,13 +354,20 @@ function getImageRow({
 
 function getMarkdown(image) {
   const url = image.version.shortUrl || image.version.url;
-  const name = image.name.split('/').pop();
+  const name = image.filename;
   return `![${name}](${url})`;
 }
 
-function getTagsItems({ tags }) {
-  return tags.map(tag => {
-    return <li>{tag}</li>;
+function getTagsItems({ tags, _highlightResult: highlightResult }) {
+  const decoratedTags = (highlightResult && highlightResult.tags.map(x => x.value)) || tags;
+  return decoratedTags.map(tag => {
+    return (
+      <li
+        dangerouslySetInnerHTML={{
+          __html: tag,
+        }}
+      />
+    );
   });
 }
 
