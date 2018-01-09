@@ -13,8 +13,8 @@ module.exports = ({ environment }) => event => {
   if (!data) {
     promise = index.deleteObject(id);
   } else if (!data.isTest) {
-    const { environment, filename, versions } = data;
-    const record = Object.assign({ objectID: id }, { environment, filename, versions });
+    const { environment, filename, tags, versions } = data;
+    const record = Object.assign({ objectID: id }, { environment, filename, tags, versions });
     promise = index.addObject(record);
   }
 

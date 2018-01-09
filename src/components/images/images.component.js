@@ -306,6 +306,7 @@ function getImageRow({
     const name = image.name.split('/').pop();
     const isSelected = selection.has(id);
     const markdown = getMarkdown(image);
+    const tagItems = getTagsItems(image);
 
     li = (
       <li item-id={id} class={style.item} is-selected={isSelected}>
@@ -334,6 +335,7 @@ function getImageRow({
             __html: (highlightResult && highlightResult.filename.value) || name,
           }}
         />
+        <ul class={style.tagList}>{tagItems}</ul>
         <span class={style.markdown} copy>
           {markdown}
         </span>
@@ -354,6 +356,12 @@ function getMarkdown(image) {
   const url = image.version.shortUrl || image.version.url;
   const name = image.name.split('/').pop();
   return `![${name}](${url})`;
+}
+
+function getTagsItems({ tags }) {
+  return tags.map(tag => {
+    return <li>{tag}</li>;
+  });
 }
 
 function getSelectClickHandler({

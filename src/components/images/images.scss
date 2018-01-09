@@ -23,6 +23,10 @@
   &:hover .actions {
     display: flex;
   }
+
+  &:hover .tagList {
+    display: flex;
+  }
 }
 
 .description {
@@ -44,6 +48,26 @@
 
   em {
     color: var(--mdc-theme-primary);
+  }
+}
+
+.tagList {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+
+  display: none;
+
+  list-style: none;
+  padding: 1rem;
+
+  li {
+    background: rgba(25, 25, 25, 0.5);
+    color: white;
+    padding: 2px 5px;
+    border-radius: 2px;
   }
 }
 
@@ -149,6 +173,10 @@
 
   .description {
     display: block;
+  }
+
+  .tagList {
+    display: flex;
   }
 }
 
