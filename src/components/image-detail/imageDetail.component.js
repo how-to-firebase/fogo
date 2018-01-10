@@ -1,5 +1,6 @@
 import style from './imageDetail.scss';
 import { connect } from 'unistore';
+import { updateImageQuery } from '../../queries';
 import { mappedActions } from '../../datastore';
 const { setImage } = mappedActions;
 
@@ -7,11 +8,15 @@ const { setImage } = mappedActions;
 import spinner from '../../assets/svg/spinner.svg';
 import contentCopy from '../../assets/svg/content-copy.svg';
 
-export default function imageDetail({ image }) {
+export default function imageDetail({ environment, image, isAdmin }) {
   const version = getVersion(image);
   const versionRows = image && getVersionRows(image);
 
   loadImageIfMissing(image);
+
+  const setDescriptionState = descriptionState => {
+    this.setState({ descriptionState });
+  };
 
   return (
     image && (
@@ -30,6 +35,18 @@ export default function imageDetail({ image }) {
           )}
           {image.exifTags && <li>{new Date(image.exifTags.CreateDate).toString()}</li>}
           {versionRows}
+          {isAdmin && (
+            <div class={style.textarea}>
+              <textarea
+                rows="5"
+                placeholder="Description..."
+                onInput={handleInput({ environment, image, setDescriptionState })}
+              >
+                {image.description}
+              </textarea>
+              <aside>{this.state.descriptionState || 'saved'}</aside>
+            </div>
+          )}
         </ul>
       </div>
     )
@@ -110,4 +127,19 @@ function handleCopyClick({ target }) {
 
 function fireAlert(detail) {
   dispatchEvent(new CustomEvent('alert', { detail, bubbles: true }));
+}
+
+let inputTimer;
+function handleInput({ environment, image, setDescriptionState }) {
+  return ({ target }) => {
+    setDescriptionState('saving...');
+    if (inputTimer) {
+      clearTimeout(inputTimer);
+    }
+    inputTimer = setTimeout(async () => {
+      const description = target.value;
+      await updateImageQuery({ environment, image: { ...image, description } });
+      setDescriptionState('saved');
+    }, 2000);
+  };
 }

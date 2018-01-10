@@ -137,7 +137,12 @@ export default class Images extends Component {
 
     return (
       <div>
-        <ImageDetail image={image} environment={environment} onClick={() => setSelecting(false)} />
+        <ImageDetail
+          image={image}
+          isAdmin={isAdmin}
+          environment={environment}
+          onClick={() => setSelecting(false)}
+        />
         <ul class={style.grid} selecting={selecting} is-admin={isAdmin}>
           {items}
           {imagesAllLoaded &&

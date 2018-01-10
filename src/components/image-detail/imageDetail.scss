@@ -52,3 +52,21 @@
 .copy {
   cursor: pointer;
 }
+
+.textarea {
+  padding-top: 1rem;
+  position: relative;
+
+  textarea {
+    width: 100%;
+  }
+  aside {
+    position: absolute;
+    right: 0;
+    bottom: 1rem;
+    z-index: 1;
+
+    color: black;
+    font-size: 1rem;
+  }
+}
