@@ -6,13 +6,6 @@
         { "fieldPath": "isProduction", "mode": "ASCENDING" },
         { "fieldPath": "created", "mode": "DESCENDING" }
       ]
-    },
-    {
-      "collectionId": "uploads",
-      "fields": [
-        { "fieldPath": "tags.test", "mode": "ASCENDING" },
-        { "fieldPath": "created", "mode": "ASCENDING" }
-      ]
     }
   ]
 }

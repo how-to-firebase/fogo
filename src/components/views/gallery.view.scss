@@ -1,6 +1,13 @@
 .galleryView {
-  min-height: calc(100vh - 5rem);
-  width: calc(100vw - 3rem);
+  height: 100vh;
+  width: 100vw;
+
+  background: black;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
 }
 
 .header {
