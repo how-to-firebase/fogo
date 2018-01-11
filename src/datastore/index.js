@@ -47,14 +47,25 @@ store.subscribe(state => {
 });
 
 function serialize(state) {
-  const { images, selection, selecting } = state;
-  const serialized = { images, selection: Array.from(selection), selecting };
+  const { images, selection, selecting, tags } = state;
+  const serialized = {
+    images,
+    selection: Array.from(selection),
+    selecting,
+    tags: Array.from(tags),
+  };
   return JSON.stringify(serialized);
 }
 
 function deserialize(serialized) {
-  const { images, selection: selectionArray, selecting } = JSON.parse(serialized);
-  return { ...startingState, images, selection: new Set(selectionArray), selecting };
+  const { images, selection: selectionArray, selecting, tags } = JSON.parse(serialized);
+  return {
+    ...startingState,
+    images,
+    selection: new Set(selectionArray),
+    selecting,
+    tags: new Set(tags),
+  };
 }
 
 export { store, actions, mappedActions };
