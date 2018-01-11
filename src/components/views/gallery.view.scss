@@ -2,17 +2,72 @@
   height: 100vh;
   width: 100vw;
 
-  background: black;
-
   display: flex;
   justify-content: center;
   align-items: center;
 
+  --color-transparent: rgba(255, 255, 255, .7);
 }
 
-.header {
-  font-size: 1.5rem;
-  font-style: italic;
-  font-weight: 800;
-  text-align: left;
+.galleryView[focused] {
+  i {
+    visibility: visible;
+  }
+}
+
+.image {
+  max-height: calc(100vh - 1rem);
+  max-width: calc(100vw - 1rem);
+}
+
+.details {
+  background: var(--color-transparent);
+  font-family: sans-serif;
+  min-height: 3rem;
+  
+  position: absolute;
+  bottom: 0rem;
+  right: 0;
+  left: 0;
+
+  p {
+    margin: 0 3rem;
+    padding: 0.5rem;
+  }
+
+  i {
+    position: absolute;
+    bottom: 5px;
+    right: 5.5rem;
+    visibility: hidden;
+  }
+
+  aside {
+    float: right;
+    padding: 0.25rem 1rem;
+    margin: 0;
+
+    position: absolute;
+    bottom: 0;
+    right: 2.5rem;
+  }
+
+  img {
+    background: var(--color-transparent);
+    cursor: pointer;
+    padding: 0.5rem;
+
+    position: absolute;
+    height: calc(100% - 1rem);
+    bottom: 0;
+  }
+
+  .right {
+    right: 0rem;
+  }
+
+  .left {
+    left: 0rem;
+    transform: rotate(180deg);
+  }
 }

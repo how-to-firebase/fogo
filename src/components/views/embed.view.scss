@@ -1,0 +1,14 @@
+.embedView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  textarea {
+    width: calc(100vw - 8rem);
+    height: 2rem;
+  }
+  
+  iframe, textarea {
+    margin: 1rem;
+  }
+}

@@ -1,0 +1,21 @@
+.galleriesView {
+  min-height: calc(100vh - 8rem);
+  width: calc(100vw - 3rem);
+
+  h3 {
+    font-family: 'mr-eaves-modern' !important;
+    font-size: 2rem !important;
+    font-weight: 800;
+    font-style: italic;
+    text-transform: uppercase;
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+
+  a {
+    margin-right: 1rem;
+  }
+}

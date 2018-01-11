@@ -1,4 +1,8 @@
-export function addImage({ images }, image) {
+export function addImage({ images, tags }, image) {
   images = [image, ...images];
-  return { images };
+  if (image.tags) {
+    image.tags.forEach(tag => tags.add(tag));
+  }
+
+  return { images, tags };
 }

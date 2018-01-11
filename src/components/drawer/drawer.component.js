@@ -17,6 +17,9 @@ export default connect('showMenu', actions)(({ showMenu, toggleMenu }) => (
           <Link activeClassName="active" href="/images">
             <List.LinkItem className={style.item}>Images</List.LinkItem>
           </Link>
+          <Link activeClassName="active" href="/galleries">
+            <List.LinkItem className={style.item}>Galleries</List.LinkItem>
+          </Link>
           <Link activeClassName="active" href="/login">
             <List.LinkItem className={style.item}>Sign Out</List.LinkItem>
           </Link>

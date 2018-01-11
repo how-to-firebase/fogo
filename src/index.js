@@ -23,7 +23,7 @@ import Snackbar from 'preact-material-components/Snackbar';
 import 'preact-material-components/Snackbar/style.css';
 
 // Views
-import { GalleryView, ImagesView, TagsView } from './components/views';
+import { EmbedView, GalleriesView, GalleryView, ImagesView, TagsView } from './components/views';
 
 const pathParts = new Set(location.pathname.split('/'));
 const isGallery = pathParts.has('gallery');
@@ -32,7 +32,7 @@ export default class Fogo extends Component {
   componentWillMount() {
     if (!isGallery) {
       registerOnAuthStateChanged();
-  
+
       addEventListener('alert', e =>
         this.snackbar.MDComponent.show({
           message: e.detail,
@@ -63,7 +63,9 @@ export default class Fogo extends Component {
             <Drawer />,
             <div class="full-height router-wrapper">
               <Router>
+                <EmbedView path="/embed/:tag" />
                 <FirebaseAuthentication google path="/login" />
+                <GalleriesView path="/galleries" />
                 <ImagesView path="/images" environment={environment} />
                 <TagsView path="/tags" />
                 <StorageUploader

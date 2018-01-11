@@ -4,8 +4,9 @@ import { route } from 'preact-router';
 import Match from 'preact-router/match';
 
 function evaluatePath({ path, laggedPath, currentUser }) {
+  const publicPages = ['embed', 'gallery'];
   const parts = new Set(path.split('/'));
-  const needsToLogIn = !currentUser && !parts.has('gallery');
+  const needsToLogIn = !currentUser && !publicPages.find(page => parts.has(page));
   const isOAuthRedirect = !laggedPath && currentUser && path == '/login';
 
   if (needsToLogIn && path != '/login') {

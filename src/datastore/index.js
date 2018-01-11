@@ -20,6 +20,7 @@ let startingState = {
   selecting: false,
   selection: new Set(),
   showMenu: false,
+  tags: new Set(),
   timestamp: Date.now(),
   token: null,
 };
@@ -42,7 +43,7 @@ store.subscribe(state => {
   const { currentUser } = state;
 
   localStorage.setItem('fogo-state', serialized);
-  console.log('state', state);
+  window.state = state;
 });
 
 function serialize(state) {

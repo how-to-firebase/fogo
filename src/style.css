@@ -40,6 +40,10 @@ h1 {
   text-align: center;
 }
 
+.app-wrapper #gallery-view {
+  background: black;
+}
+
 .router-wrapper {
   min-height: calc(100vh - 6rem);
 
