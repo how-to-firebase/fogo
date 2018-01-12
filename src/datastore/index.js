@@ -27,6 +27,7 @@ let startingState = {
 const serialized = localStorage.getItem('fogo-state');
 if (serialized) {
   startingState = deserialize(serialized);
+  startingState.images = truncateImages(startingState.images);
 }
 
 const store = createStore(startingState);
@@ -39,10 +40,15 @@ for (let i in rawActions) {
 }
 
 store.subscribe(state => {
-  const serialized = serialize(state);
-  const { currentUser } = state;
+  const { laggedCurrentUser, currentUser } = state;
 
-  localStorage.setItem('fogo-state', serialized);
+  if (currentUser) {
+    const serialized = serialize(state);
+    localStorage.setItem('fogo-state', serialized);
+  } else if (laggedCurrentUser) {
+    localStorage.removeItem('fogo-state');
+  }
+
   window.state = state;
 });
 
@@ -66,6 +72,10 @@ function deserialize(serialized) {
     selecting,
     tags: new Set(tags),
   };
+}
+
+function truncateImages(images) {
+  return images.slice(0, 25);
 }
 
 export { store, actions, mappedActions };
