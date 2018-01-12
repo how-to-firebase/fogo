@@ -33,6 +33,13 @@
   }
 }
 
+.searchByAlgolia {
+  position: absolute;
+  bottom: -20px;
+  right: 20px;
+  z-index: 1;
+}
+
 .clear {
   position: absolute;
   top: 0;
@@ -40,7 +47,6 @@
   z-index: 1;
 
   cursor: pointer;
-
 }
 
 .searchBar[searching] {

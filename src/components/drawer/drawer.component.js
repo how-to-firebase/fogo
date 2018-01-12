@@ -12,7 +12,7 @@ import 'preact-material-components/List/style.css';
 export default connect('showMenu', actions)(({ showMenu, toggleMenu }) => (
   <div>
     <Drawer.TemporaryDrawer open={showMenu} onClose={toggleMenu} className={style.drawer}>
-      <Drawer.TemporaryDrawerContent>
+      <Drawer.TemporaryDrawerContent className={style.drawerContent}>
         <List className={style.list}>
           <Link activeClassName="active" href="/images">
             <List.LinkItem className={style.item}>Images</List.LinkItem>

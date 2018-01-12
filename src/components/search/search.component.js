@@ -43,6 +43,7 @@ export default connect('search,searching', actions)(
             onInput={linkState(store, 'search')}
             onKeyup={handleKeyup}
           />
+          <img class={style.searchByAlgolia} src="/assets/algolia.svg" alt="search by Algolia"/>
           <img class={style.clear} src={clear} alt="clear search" onClick={() => clearInput()} />
         </div>
 

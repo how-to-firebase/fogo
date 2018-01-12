@@ -1,11 +1,11 @@
 {
-  "name": "fogo",
-  "short_name": "fogo",
+  "name": "Fogo",
+  "short_name": "Fogo",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#fff",
-  "theme_color": "#673ab8",
+  "theme_color": "#29b6f6",
   "icons": [
     {
       "src": "/assets/icon.png",
