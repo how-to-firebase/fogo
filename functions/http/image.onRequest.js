@@ -155,7 +155,7 @@ function convertFile(admin, file, versionName) {
 }
 
 function getLocalFilename(filename) {
-  return `/tmp/${path.parse(filename).base}`;
+  return `/tmp/${Date.now()}`;
 }
 
 function convertLocalFile(localFilename, versionName) {
