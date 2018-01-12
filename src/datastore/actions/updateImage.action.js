@@ -1,4 +1,4 @@
-export function updateImage({ images, image, environment }, updatedImage) {
+export function updateImage({ environment, images, image }, updatedImage) {
   const { __id: id } = updatedImage;
   const imageIndex = images.findIndex(image => image.__id == id);
 
@@ -10,5 +10,8 @@ export function updateImage({ images, image, environment }, updatedImage) {
 
   images[imageIndex] = updatedImage;
 
-  return { images, image };
+  const tags = new Set();
+  images.forEach(image => image.tags && image.tags.forEach(tag => tags.add(tag)));
+
+  return { images, image, tags };
 }
