@@ -16,7 +16,7 @@ module.exports = ({ environment }) => event => {
     const { environment, filename, tags, versions } = data;
     const record = Object.assign(
       { objectID: id },
-      { environment, filename, tags: Object.keys(tags), versions }
+      { environment, filename, tags: Object.keys(tags || {}), versions }
     );
     promise = index.addObject(record);
   }

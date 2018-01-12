@@ -14,6 +14,9 @@ import Button from 'preact-material-components/Button';
 import 'preact-material-components/TextField/style.css';
 import 'preact-material-components/Button/style.css';
 
+// Svg
+const spinner = '/assets/svg/spinner.svg';
+
 export default connect('environment,images,selection', actions)(
   ({ environment, images, selection }) => {
     if (!selection.size) {
@@ -58,13 +61,13 @@ function getSelectedImages({ images, selection }) {
 
 function getItems({ environment, selectedImages }) {
   return selectedImages.map(image => {
-    const version = image.versions.x200;
+    const version = (image.versions && image.versions.x200) || { url: spinner };
     const name = image.name.split('/').pop();
     const tagItems = image.tags && image.tags.map(getTagItem({ environment, image }));
 
     return (
       <li>
-        <div class={style.image} style={`background: url(${version.url})`} />
+        <div class={style.image} style={`background-image: url(${version.url})`} />
         <div class={style.secondary}>
           <h3>{name}</h3>
           <ul class={style.tagItems}>{tagItems}</ul>
@@ -131,12 +134,13 @@ function handleSubmit({ environment, images, selection }) {
     input.value = '';
     input.focus();
 
-    selection.forEach(id => {
-      const image = images.find(image => image.__id == id);
-      const tags = new Set(image.tags || []);
-      tags.add(hashtag);
-      updateTagsQuery({ environment, id, tags });
-    });
+    Array.from(selection)
+      .map(id => images.find(image => image.__id == id))
+      .map(image => ({ image, tags: new Set(image.tags || []) }))
+      .forEach(({ image, tags }) => {
+        tags.add(hashtag);
+        updateTags({ environment, image, tags });
+      });
   };
 }
 
@@ -144,22 +148,26 @@ function handleTagClick({ environment, image, tag }) {
   return e => {
     const tags = new Set(image.tags || []);
     tags.delete(tag);
-
-    optimisticUpdate({ image, tags });
-    updateTagsQuery({ environment, tags, id: image.__id });
+    updateTags({ environment, image, tags });
   };
 }
 
 function handleGlobalTagClick({ environment, images, tag }) {
   return e => {
-    images.forEach(image => {
-      const tags = new Set(image.tags || []);
-      tags.delete(tag);
-
-      optimisticUpdate({ image, tags });
-      updateTagsQuery({ environment, tags, id: image.__id });
-    });
+    images
+      .map(image => ({ image, tags: new Set(image.tags || []) }))
+      .filter(({ tags }) => tags.has(tag))
+      .forEach(({ image, tags }) => {
+        tags.delete(tag);
+        updateTags({ environment, image, tags });
+      });
   };
+}
+
+function updateTags({ environment, image, tags }) {
+  const { __id: id } = image;
+  optimisticUpdate({ image, tags });
+  updateTagsQuery({ environment, id, tags });
 }
 
 function optimisticUpdate({ image, tags }) {

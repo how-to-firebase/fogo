@@ -1,6 +1,8 @@
 import { imageQuery } from './image.query';
 import { mappedActions } from '../datastore';
+import { batch } from '../utils';
 const { updateImage } = mappedActions;
+const addToBatch = batch('update');
 
 export async function updateTagsQuery({ environment, id, tags }) {
   const uploads = environment.collections.uploads;
@@ -9,11 +11,16 @@ export async function updateTagsQuery({ environment, id, tags }) {
     .collection(uploads)
     .doc(id);
 
-  tags = Array.from(tags).reduce((tags, tag) => {
-    tags[tag] = true;
-    return tags;
-  }, {});
-  await doc.set({ tags }, { merge: true });
+  if (!tags.size) {
+    tags = null;
+  } else {
+    tags = Array.from(tags).reduce((tags, tag) => {
+      tags[tag] = true;
+      return tags;
+    }, {});
+  }
+
+  await addToBatch(doc, { tags });
   const updatedImage = await imageQuery(environment, id);
   updateImage(updatedImage);
 }

@@ -9,11 +9,11 @@
     "dev": "preact watch --template template.html",
     "test": "NODE_ENV=test jest",
     "test:watch": "NODE_ENV=test jest --watch",
-    "deploy": "firebase deploy",
+    "deploy": "yarn build && firebase deploy",
     "deploy:database": "firebase deploy --only database",
     "deploy:firestore": "firebase deploy --only firestore",
     "deploy:functions": "firebase deploy --only functions",
-    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:hosting": "yarn build && firebase deploy --only hosting",
     "deploy:storage": "firebase deploy --only storage",
     "lint": "eslint src"
   },
