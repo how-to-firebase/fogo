@@ -11,7 +11,7 @@ export function searchObserver({ environment }) {
   return Observable.create(observer => {
     let lastSearched;
     let timer;
-    return store.subscribe(({ search }) => {
+    const unsubscribe = store.subscribe(({ search }) => {
       if (timer) {
         clearTimeout(timer);
       }
@@ -30,5 +30,15 @@ export function searchObserver({ environment }) {
         }, timeout);
       }
     });
+
+    function bustCache() {
+      client.clearCache();
+    }
+    window.addEventListener('search-cache-bust', bustCache);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('search-cache-bust', bustCache);
+    };
   });
 }

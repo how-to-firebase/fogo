@@ -17,19 +17,19 @@ import 'preact-material-components/Button/style.css';
 // Svg
 const spinner = '/assets/svg/spinner.svg';
 
-export default connect('environment,images,selection', actions)(
-  ({ environment, images, selection }) => {
+export default connect('environment,images,searchResults,selection', actions)(
+  ({ environment, images, searchResults, selection }) => {
     if (!selection.size) {
       setTimeout(() => {
         route('/images');
       }, 1000);
     } else {
-      const selectedImages = getSelectedImages({ images, selection });
+      const selectedImages = getSelectedImages({ images, searchResults, selection });
       const items = getItems({ environment, selectedImages });
-      const globalTagItems = getGlobalTagItems({ environment, images, selectedImages });
+      const globalTagItems = getGlobalTagItems({ environment, selectedImages });
       return (
         <div>
-          <form class={style.form} onSubmit={handleSubmit({ environment, images, selection })}>
+          <form class={style.form} onSubmit={handleSubmit({ environment, selectedImages })}>
             <TextField
               className={style.tagsInput}
               type="text"
@@ -55,21 +55,26 @@ export default connect('environment,images,selection', actions)(
 );
 
 // Extract data
-function getSelectedImages({ images, selection }) {
-  return images.filter(image => selection.has(image.__id));
+function getSelectedImages({ images, searchResults, selection }) {
+  let result;
+  if (searchResults) {
+    result = searchResults.hits.filter(hit => selection.has(hit.objectID));
+  } else {
+    result = images.filter(image => selection.has(image.__id));
+  }
+  return result;
 }
 
 function getItems({ environment, selectedImages }) {
   return selectedImages.map(image => {
     const version = (image.versions && image.versions.x200) || { url: spinner };
-    const name = image.name.split('/').pop();
     const tagItems = image.tags && image.tags.map(getTagItem({ environment, image }));
 
     return (
       <li>
         <div class={style.image} style={`background-image: url(${version.url})`} />
         <div class={style.secondary}>
-          <h3>{name}</h3>
+          <h3>{image.filename}</h3>
           <ul class={style.tagItems}>{tagItems}</ul>
         </div>
       </li>
@@ -77,9 +82,9 @@ function getItems({ environment, selectedImages }) {
   });
 }
 
-function getGlobalTagItems({ environment, images, selectedImages }) {
+function getGlobalTagItems({ environment, selectedImages }) {
   const tags = getTags(selectedImages);
-  return Array.from(tags).map(getGlobalTagItem({ environment, images }));
+  return Array.from(tags).map(getGlobalTagItem({ environment, selectedImages }));
 }
 
 function getTags(selectedImages) {
@@ -91,14 +96,14 @@ function getTags(selectedImages) {
   }, new Set());
 }
 
-function getGlobalTagItem({ environment, images }) {
+function getGlobalTagItem({ environment, selectedImages }) {
   return tag => {
     return (
       <li class={style.tagItem}>
         <img
           src="/assets/svg/delete.svg"
           alt="delete"
-          onClick={handleGlobalTagClick({ environment, images, tag })}
+          onClick={handleGlobalTagClick({ environment, selectedImages, tag })}
         />
         <span>#{tag}</span>
       </li>
@@ -122,7 +127,7 @@ function getTagItem({ environment, image }) {
 }
 
 // Handle events
-function handleSubmit({ environment, images, selection }) {
+function handleSubmit({ environment, selectedImages }) {
   return e => {
     e.preventDefault();
 
@@ -134,8 +139,7 @@ function handleSubmit({ environment, images, selection }) {
     input.value = '';
     input.focus();
 
-    Array.from(selection)
-      .map(id => images.find(image => image.__id == id))
+    selectedImages
       .map(image => ({ image, tags: new Set(image.tags || []) }))
       .forEach(({ image, tags }) => {
         tags.add(hashtag);
@@ -152,9 +156,9 @@ function handleTagClick({ environment, image, tag }) {
   };
 }
 
-function handleGlobalTagClick({ environment, images, tag }) {
+function handleGlobalTagClick({ environment, selectedImages, tag }) {
   return e => {
-    images
+    selectedImages
       .map(image => ({ image, tags: new Set(image.tags || []) }))
       .filter(({ tags }) => tags.has(tag))
       .forEach(({ image, tags }) => {
@@ -164,13 +168,18 @@ function handleGlobalTagClick({ environment, images, tag }) {
   };
 }
 
-function updateTags({ environment, image, tags }) {
+async function updateTags({ environment, image, tags }) {
   const { __id: id } = image;
   optimisticUpdate({ image, tags });
-  updateTagsQuery({ environment, id, tags });
+  await updateTagsQuery({ environment, id, tags });
+  bustSearchCache();
 }
 
 function optimisticUpdate({ image, tags }) {
   image.tags = Array.from(tags);
   updateImage(image);
+}
+
+function bustSearchCache() {
+  window.dispatchEvent(new CustomEvent('search-cache-bust'));
 }

@@ -151,7 +151,7 @@ export default class Images extends Component {
         <div
           id="loading-bar"
           className={style.loadMore}
-          style={imagesAllLoaded && 'visibility: hidden;'}
+          style={(imagesAllLoaded || searching) && 'visibility: hidden;'}
         >
           <img src={threeDots} alt="Loading..." />
         </div>
@@ -163,9 +163,9 @@ export default class Images extends Component {
 // Lifecycle functions
 function getEvaluateLoadingPosition({ environment, pageSize }) {
   return debounce(() => {
-    const { images, imagesAllLoaded } = store.getState();
+    const { images, imagesAllLoaded, searching } = store.getState();
 
-    if (!imagesAllLoaded) {
+    if (!imagesAllLoaded && !searching) {
       evaluateLoadingPosition({ pageSize, environment, images });
     }
   }, 500);
