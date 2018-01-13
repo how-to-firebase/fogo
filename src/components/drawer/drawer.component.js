@@ -10,7 +10,7 @@ import 'preact-material-components/Drawer/style.css';
 import 'preact-material-components/List/style.css';
 
 export default connect('showMenu', actions)(({ showMenu, toggleMenu }) => (
-  <div>
+  <div class={style.wrapper}>
     <Drawer.TemporaryDrawer open={showMenu} onClose={toggleMenu} className={style.drawer}>
       <Drawer.TemporaryDrawerContent className={style.drawerContent}>
         <List className={style.list}>

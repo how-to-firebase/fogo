@@ -1,12 +1,12 @@
 .mdc-toolbar {
-  opacity: .9;
+  opacity: 0.9;
   position: fixed !important;
   z-index: 10;
 
   .mdc-toolbar__section {
     align-items: center;
   }
-  
+
   .mdc-toolbar__title {
     font-family: 'mr-eaves-modern' !important;
     font-size: 2rem !important;
@@ -15,10 +15,14 @@
   }
 }
 
+.toolbarIcon {
+  cursor: pointer;
+}
+
 .actions {
   display: flex;
   align-items: center;
-  padding: 0 2rem; 
+  padding: 0 2rem;
   flex-grow: 1;
 }
 

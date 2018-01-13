@@ -19,7 +19,10 @@ export function searchObserver({ environment }) {
         timer = setTimeout(() => {
           lastSearched = search;
           index
-            .search(search, { facetFilters: `environment:${environment.environment}` })
+            .search(search, {
+              facetFilters: `environment:${environment.environment}`,
+              hitsPerPage: 100,
+            })
             .then(results => {
               const hits = results.hits.map(result => ({
                 __id: result.objectID,

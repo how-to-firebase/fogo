@@ -5,6 +5,8 @@ export function setSearching({ searchResults, selection, selecting }, searching)
     if (searchResults) {
       selecting = true;
     }
+  } else {
+    searchResults = null
   }
-  return { searching: !!searching, search: '', selection, selecting };
+  return { searching: !!searching, search: '', searchResults, selection, selecting };
 }

@@ -138,4 +138,5 @@ function b64DecodeUnicode(str) {
 
 function handlePath({ path }) {
   setPath(path);
+  document.body.parentElement.scrollTop = 0;
 }

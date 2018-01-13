@@ -314,7 +314,7 @@ function fireAlert(detail) {
 // Render main
 function getDecoratedImages({ searching, search, searchResults, images }) {
   const imagesToDecorate =
-    (searching && search && ((searchResults && searchResults.hits) || [])) || images;
+    (searching && ((searchResults && searchResults.hits) || [])) || images;
   return imagesToDecorate
     .map(image => addImageWidth({ image }))
     .map(image => addImageVersion({ image }));
