@@ -1,3 +1,3 @@
-export function setSelecting(state, selecting) {
-  return { selecting: !!selecting };
+export function setSelecting({ searching }, selecting) {
+  return { selecting: !!selecting || searching };
 }
