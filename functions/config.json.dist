@@ -1,13 +1,32 @@
 {
-  "firebase": {
-    "databaseURL": "https://quiver-four.firebaseio.com",
-    "storageBucket": "quiver-four.appspot.com",
-    "apiKey": "AIzaSyCiyt68i2P4igKuDJk3WQDPEzT74FCyBxA",
-    "authDomain": "quiver-four.firebaseapp.com",
-    "projectId": "quiver-four",
-    "serviceAccount": "./service-account.json"
+  "apiKeys": {
+    "googleUrlShortener": "asdfasdfasdfasdfasdf"
+  },
+  "algolia": {
+    "applicationId": "ASDFASDFADSFDSF",
+    "apiKey": "asdfadsfdsfasfds",
+    "settings": {
+      "attributesForFaceting": ["filterOnly(environment)"],
+      "searchableAttributes": ["filename", "tags"]
+    }
   },
   "collections": {
-    "uploads": "uploads"
+    "uploads": "uploads",
+    "users": "users"
+  },
+  "firebase": {
+    "databaseURL": "https://your-firebase.firebaseio.com",
+    "storageBucket": "your-firebase.appspot.com",
+    "apiKey": "asdfsdfdsfasdfadsfsdf",
+    "authDomain": "your-firebase.firebaseapp.com",
+    "projectId": "your-firebase",
+    "serviceAccount": "./service-account.json"
+  },
+
+  "indexes": {
+    "uploads": "fogo-uploads"
+  },
+  "refs": {
+    "idTokenRefresh": "notifications/{uid}/idTokenRefresh"
   }
 }

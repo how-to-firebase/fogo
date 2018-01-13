@@ -1,22 +1,38 @@
 // Environment Variables
 const defaults = {
+  algolia: {
+    applicationId: 'ASDFADFASDF',
+    apiKey: 'asdfasdfasdfadfaf',
+  },
   collections: {
     uploads: 'uploads',
   },
+  functionsEnvironment: 'production',
+  indexes: {
+    uploads: 'fogo-uploads',
+  },
+  refs: {
+    idTokenRefresh: 'notifications/{uid}/idTokenRefresh',
+  },
   urls: {
-    image: 'https://us-central1-quiver-four.cloudfunctions.net/image'
-  }
+    image: 'https://your-cloud-functions-instance.cloudfunctions.net/image',
+  },
 };
 const production = {
   ...defaults,
+  environment: 'production',
   symbol: Symbol('production'),
+  storage: { path: 'production/uploads' },
 };
-const test = {
+const howtofirebase = {
   ...defaults,
-  symbol: Symbol('test'),
+  environment: 'howtofirebase',
+  symbol: Symbol('howtofirebase'),
+  storage: { path: 'howtofirebase/uploads' },
 };
 const development = {
   ...defaults,
+  environment: 'development',
   symbol: Symbol('development'),
   storage: { path: 'development/uploads' },
 };
@@ -24,11 +40,14 @@ const development = {
 // Lookup Maps
 const environments = new Map([
   [production.symbol, production],
-  [test.symbol, test],
+  [howtofirebase.symbol, howtofirebase],
   [development.symbol, development],
 ]);
 const hosts = new Map([
-  ['quiver-four.firebaseapp.com', production.symbol],
+  ['yoursite.com', production.symbol],
+  ['fogo.howtofirebase.com', howtofirebase.symbol],
+  ['quiver-four.firebaseapp.com', howtofirebase.symbol],
+  ['dev.chrisesplin.com', development.symbol],
   ['localhost', development.symbol],
 ]);
 
