@@ -143,7 +143,7 @@ export default class Images extends Component {
           environment={environment}
           onClick={() => setSelecting(false)}
         />
-        <ul class={style.grid} selecting={selecting} is-admin={isAdmin}>
+        <ul class={style.grid} selecting={selecting} is-admin={isAdmin} disable-scroll={!!image}>
           {items}
           {imagesAllLoaded &&
             items.length == 1 && <li class={style.emptyState}>Nothing to show 😪</li>}
