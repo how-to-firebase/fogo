@@ -16,9 +16,7 @@ body {
 }
 
 input {
-  font: 14px/1.21 'mr-eaves-modern', arial, sans-serif;
-  font-weight: 800;
-  font-style: italic;
+  font-family: 'mr-eaves-modern', arial, sans-serif;
 }
 
 a {
