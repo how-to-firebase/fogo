@@ -18,7 +18,8 @@ window.addEventListener('focus', e => setWindowFocus && setWindowFocus(true));
 window.addEventListener('blur', e => setWindowFocus && setWindowFocus(false));
 
 export function GalleryView({ environment }) {
-  const tag = location.pathname.split('/').pop();
+  const pathParts = location.pathname.split('/').slice(1);
+  const [galleryName, tag] = pathParts;
   const { focused, images, index } = this.state;
   const length = (images && images.length) || 0;
   const i = index || 0;
