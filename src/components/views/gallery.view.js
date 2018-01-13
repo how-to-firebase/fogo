@@ -1,5 +1,7 @@
 import style from './gallery.view.scss';
-import { imagesByTagQuery } from '../../queries';
+import { imagesByTagQuery, imageVersionQuery } from '../../queries';
+
+const spinner = '../../assets/svg/spinner.svg';
 
 let increment;
 let setWindowFocus;
@@ -23,6 +25,13 @@ export function GalleryView({ environment }) {
   const image = images && images[i];
   const setImages = images => {
     this.setState({ images });
+    saveToLocalStorage({ images, tag });
+  };
+  const setImage = image => {
+    const id = image.__id;
+    const index = images.findIndex(image => image.__id == id);
+    images[index] = image;
+    setImages(images);
   };
   const setIndex = nextI => {
     const index = (nextI == -1 && length - 1) || nextI % length;
@@ -30,20 +39,23 @@ export function GalleryView({ environment }) {
   };
   const changeImage = next => e => increment((next && 1) || -1);
 
-  increment = change => {
-    console.log('change', change);
-    setIndex(i + change);
-  };
+  increment = change => setIndex(i + change);
 
   setWindowFocus = focused => this.setState({ focused });
 
   getImages({ environment, images, tag, setImages });
 
+  ensureOriginal({ environment, image, setImage });
+
   return (
     <div id="gallery-view" class={style.galleryView} view="gallery" focused={focused}>
       {image && (
         <span>
-          <img class={style.image} src={image.versions.original.url} alt={image.filename} />
+          <img
+            class={style.image}
+            src={(image.versions.original && image.versions.original.url) || spinner}
+            alt={image.filename}
+          />
         </span>
       )}
       <div class={style.backdrop} />
@@ -84,7 +96,6 @@ function getImages({ environment, images, tag, setImages }) {
       setImages(saved.images);
     } else {
       imagesByTagQuery({ environment, tag }).then(images => {
-        saveToLocalStorage({ images, tag });
         setImages(images);
       });
     }
@@ -103,4 +114,17 @@ function saveToLocalStorage({ images, tag }) {
     timestamp: Date.now(),
   };
   localStorage.setItem(LOCALSTORAGE_NAME, JSON.stringify(payload));
+}
+
+function ensureOriginal({ environment, image, setImage }) {
+  if (image && (!image.versions || !image.versions.original)) {
+    imageVersionQuery({ environment, record: image.__id, versionName: 'original' }).then(url => {
+      image.versions = {
+        original: {
+          url,
+        },
+      };
+      setImage(image);
+    });
+  }
 }
