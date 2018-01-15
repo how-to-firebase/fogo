@@ -3,6 +3,7 @@ export async function imagesByTagQuery({ environment, tag }) {
   const query = window.firebase
     .firestore()
     .collection(uploads)
+    .where('environment', '==', environment.environment)
     .where(`tags.${tag}`, '==', true);
 
   // Don't use an orderBy here because it requires a new index for every tag... which is insane!
