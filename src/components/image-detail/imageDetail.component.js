@@ -20,7 +20,8 @@ export default function imageDetail({ environment, image, isAdmin }) {
 
   return (
     image && (
-      <div id="overlay" class={style.overlay} onClick={handleOverlayClick}>
+      <div id="overlay" class={style.overlay} close onClick={handleOverlayClick}>
+        <img class={style.clear} close src="/assets/svg/clear.svg" alt="exit detail view"/>
         <img
           class={style.image}
           src={(version && version.url) || spinner}
@@ -38,7 +39,7 @@ export default function imageDetail({ environment, image, isAdmin }) {
           {isAdmin && (
             <div class={style.textarea}>
               <textarea
-                rows="5"
+                rows="3"
                 placeholder="Description..."
                 onInput={handleInput({ environment, image, setDescriptionState })}
               >
@@ -109,7 +110,7 @@ function getUrl(version) {
 }
 
 function handleOverlayClick(e) {
-  if (e.target.id == 'overlay') {
+  if (e.target.hasAttribute('close')) {
     setImage();
   }
 }

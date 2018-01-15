@@ -1,21 +1,29 @@
 export default function(config, env, helpers) {
-  // https://github.com/developit/preact-cli-plugin-async/blob/master/async-plugin.js
-  let babel = config.module.loaders.filter(loader => loader.loader === 'babel-loader')[0].options;
-	
-	// Blacklist regenerator within env preset:
-  babel.presets[0][1].exclude.push('transform-async-to-generator', 'transform-regenerator');
+  // https://gist.github.com/developit/08acd182a30e66eda8de01dbbe9725ba
+  let babel = helpers.getLoadersByName(config, 'babel-loader')[0].rule.options;
 
-  // Replace stage-1 preset with an inlined, flattened version without regenerator:
-  babel.presets.pop();
-  babel.plugins.push(
-    'transform-export-extensions',
-    'syntax-dynamic-import',
-    'transform-class-properties',
-    'transform-object-rest-spread'
+	// this doesn't seem to work anymore:
+	babel.presets[0][1].exclude.push(
+		'transform-async-to-generator',
+		'transform-regenerator'
 	);
 
-	// Add Kneden
-	if (env.production) {
-		babel.plugins.push(require.resolve('babel-plugin-async-to-promises'));
-	}
+	babel.plugins.push([
+		'fast-async',
+		{
+			env: {
+				log: true
+			},
+			compiler: {
+				promises: true,
+				noRuntime: true
+			}
+		}
+	]);
+
+	// turn off uglify to see the output without breaking the build:
+	// let uglify = helpers.getPluginsByName(config, 'UglifyJsPlugin')[0];
+	// if (uglify) {
+	// 	config.plugins.splice(uglify.index, 1);
+	// }
 }

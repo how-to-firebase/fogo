@@ -85,6 +85,9 @@ export default class Fogo extends Component {
 
 function registerOnAuthStateChanged() {
   window.firebase.auth().onAuthStateChanged(setCurrentUser);
+  window.firebase.auth().onAuthStateChanged(currentUser => {
+    console.info('onAuthStateChanged currentUser:', currentUser);
+  });
 }
 
 function registerStorageUploaderListeners() {

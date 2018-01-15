@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "start": "if-env NODE_ENV=production && npm run -s serve || npm run -s dev",
-    "build": "preact build --template template.html --no-prerender",
+    "build":
+      "rm -rf build && preact build --template template.html --no-prerender && cp manifest.json build/manifest.json && cp assets/icon.png build/assets/icon.png",
     "serve": "preact build --template template.html --no-prerender && preact serve",
     "dev": "preact watch --template template.html",
     "test": "NODE_ENV=test jest",
@@ -20,10 +21,9 @@
   "eslintConfig": {
     "extends": "eslint-config-synacor"
   },
-  "eslintIgnore": [
-    "build/*"
-  ],
+  "eslintIgnore": ["build/*"],
   "devDependencies": {
+    "babel-plugin-fast-async": "^6.1.2",
     "eslint": "^4.5.0",
     "eslint-config-synacor": "^1.1.0",
     "if-env": "^1.0.0",
@@ -47,9 +47,7 @@
     "unistore": "^2.4.0"
   },
   "jest": {
-    "roots": [
-      "src"
-    ]
+    "roots": ["src"]
   },
   "private": true
 }

@@ -12,3 +12,5 @@ environment.js
 
 *.log
 bin
+
+.firebaserc
