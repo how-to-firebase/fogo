@@ -4,6 +4,7 @@ import environment from '../environment';
 
 let startingState = {
   currentUser: null,
+  deletedImages: new Set(),
   environment,
   images: [],
   image: null,
@@ -27,7 +28,9 @@ let startingState = {
 const serialized = localStorage.getItem('fogo-state');
 if (serialized) {
   startingState = deserialize(serialized);
-  startingState.images = truncateImages(startingState.images);
+  const { deletedImages, images } = removeDeletedImages(startingState);
+  startingState.deletedImages = deletedImages;
+  startingState.images = truncateImages(images);
 }
 
 const store = createStore(startingState);
@@ -53,8 +56,9 @@ store.subscribe(state => {
 });
 
 function serialize(state) {
-  const { images, selection, selecting, tags } = state;
+  const { deletedImages, images, selection, selecting, tags } = state;
   const serialized = {
+    deletedImages: Array.from(deletedImages),
     images,
     selection: Array.from(selection),
     selecting,
@@ -64,9 +68,12 @@ function serialize(state) {
 }
 
 function deserialize(serialized) {
-  const { images, selection: selectionArray, selecting, tags } = JSON.parse(serialized);
+  const { deletedImages, images, selection: selectionArray, selecting, tags } = JSON.parse(
+    serialized
+  );
   return {
     ...startingState,
+    deletedImages: new Set(deletedImages),
     images,
     selection: new Set(selectionArray),
     selecting,
@@ -78,4 +85,20 @@ function truncateImages(images) {
   return images.slice(0, 25);
 }
 
-export { store, actions, mappedActions };
+function removeDeletedImages({ deletedImages, images }) {
+  const filteredDeletedImages = new Set();
+  const filteredImages = images.filter(({ __id }) => {
+    const isDeleted = deletedImages.has(__id);
+    if (!isDeleted) {
+      filteredDeletedImages.add(__id);
+    }
+    return !isDeleted;
+  });
+  return { deletedImages: filteredDeletedImages, images: filteredImages };
+}
+
+function bustCache() {
+  localStorage.removeItem('fogo-state');
+}
+
+export { actions, bustCache, mappedActions, store };

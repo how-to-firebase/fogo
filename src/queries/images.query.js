@@ -1,4 +1,4 @@
-export async function imagesQuery({ environment, cursor, limit = 10 }) {
+export async function imagesQuery({ environment, cursor, images, limit = 10 }) {
   const uploads = environment.collections.uploads;
   const orderedCollection = window.firebase
     .firestore()

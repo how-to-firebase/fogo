@@ -193,7 +193,7 @@ async function evaluateLoadingPosition({ pageSize: limit, environment, images })
   let imagesToLoad = images;
   if (top < viewportHeight) {
     const cursor = images[images.length - 1];
-    const { results, imagesAllLoaded } = await imagesQuery({ environment, cursor, limit });
+    const { results, imagesAllLoaded } = await imagesQuery({ cursor, environment, images, limit });
     addImages(results);
     setImagesAllLoaded(imagesAllLoaded);
     imagesToLoad = results;

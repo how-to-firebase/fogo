@@ -24,7 +24,7 @@ export async function loadImageVersionIfNecessary({
   versionName = 'original',
 }) {
   const { name, __id: id } = image;
-  if (!image.versions || (!image.versions[versionName] && !loadingQueue.has(name))) {
+  if (!loadingQueue.has(name) && (!image.versions || !image.versions[versionName])) {
     loadingQueue.add(name);
     const url = await imageVersionQuery({ environment, record: id, versionName });
     const updatedImage = await imageQuery(environment, id);
