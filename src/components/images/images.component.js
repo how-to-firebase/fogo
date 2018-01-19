@@ -31,6 +31,7 @@ const GUTTER = 4;
 const HEIGHT = 200;
 const DEFAULT_WIDTH = 200;
 const VERSION_NAME = `x${HEIGHT}`;
+const MARKDOWN_VERSION_NAME = '640';
 
 @connect(
   ({
@@ -126,6 +127,7 @@ export default class Images extends Component {
     const items = justifyWidths({ images: decoratedImages, gutter: GUTTER, imagesWidth }).map(
       image =>
         getImageRow({
+          environment,
           image,
           isAdmin,
           selection,
@@ -313,8 +315,7 @@ function fireAlert(detail) {
 
 // Render main
 function getDecoratedImages({ searching, search, searchResults, images }) {
-  const imagesToDecorate =
-    (searching && ((searchResults && searchResults.hits) || [])) || images;
+  const imagesToDecorate = (searching && ((searchResults && searchResults.hits) || [])) || images;
   return imagesToDecorate
     .map(image => addImageWidth({ image }))
     .map(image => addImageVersion({ image }));
@@ -380,7 +381,15 @@ function sumRowWidths(row) {
 }
 
 // Render image rows
-function getImageRow({ image, isAdmin, selection, copyClick, imageDetailClick, selectClick }) {
+function getImageRow({
+  environment,
+  image,
+  isAdmin,
+  selection,
+  copyClick,
+  imageDetailClick,
+  selectClick,
+}) {
   let li;
   if (image.isGrower) {
     li = <li style={`width: ${image.width}px;`} />;
@@ -388,7 +397,7 @@ function getImageRow({ image, isAdmin, selection, copyClick, imageDetailClick, s
     const { __id: id, _highlightResult: highlightResult } = image;
     const name = image.filename;
     const isSelected = selection.has(id);
-    const markdown = getMarkdown(image);
+    const markdown = getMarkdown({ environment, image });
     const tagItems = getTagsItems(image);
     const selectSvg = getSelectSvg({ isAdmin, selectClick });
 
@@ -398,7 +407,12 @@ function getImageRow({ image, isAdmin, selection, copyClick, imageDetailClick, s
 
         <div class={style.actions}>
           <img src={openWith} alt="open image detail" onClick={imageDetailClick} />
-          <img src={contentCopy} alt="copy image markdown" onClick={copyClick} />
+          <img
+            src={contentCopy}
+            alt="copy image markdown"
+            onClick={copyClick}
+            style={!markdown && 'visibility: hidden;'}
+          />
         </div>
         <div
           class={style.description}
@@ -424,10 +438,17 @@ function getImageRow({ image, isAdmin, selection, copyClick, imageDetailClick, s
   return li;
 }
 
-function getMarkdown(image) {
-  const url = image.version.shortUrl || image.version.url;
-  const name = image.filename;
-  return `![${name}](${url})`;
+function getMarkdown({ environment, image }) {
+  let result = '';
+  if (image.versions && image.versions[MARKDOWN_VERSION_NAME]) {
+    const version = image.versions[MARKDOWN_VERSION_NAME];
+    const url = version.shortUrl || version.url;
+    const name = image.filename;
+    result = `![${name}](${url})`;
+  } else {
+    loadImageVersionIfNecessary({ environment, image, versionName: MARKDOWN_VERSION_NAME });
+  }
+  return result;
 }
 
 function getTagsItems({ tags, _highlightResult: highlightResult }) {
