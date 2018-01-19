@@ -1,3 +1,4 @@
+export * from './deleteImage.query';
 export * from './image.query';
 export * from './images.query';
 export * from './imagesByTag.query';
