@@ -442,7 +442,7 @@ function getMarkdown({ environment, image }) {
   let result = '';
   if (image.versions && image.versions[MARKDOWN_VERSION_NAME]) {
     const version = image.versions[MARKDOWN_VERSION_NAME];
-    const url = version.shortUrl || version.url;
+    const url = version.url || version.shortUrl;
     const name = image.filename;
     result = `![${name}](${url})`;
   } else {
