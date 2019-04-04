@@ -5,7 +5,7 @@ const { exec } = require('child_process');
 const GoogleUrl = require('google-url');
 const { adminUtil, collectionsUtil } = require('../utils');
 
-module.exports = ({ environment }) => (req, res) => {
+module.exports = ({ environment }) => async (req, res) => {
   const error = getError(req, res);
   if (error) {
     return handleError(res, 500, error);
@@ -14,35 +14,26 @@ module.exports = ({ environment }) => (req, res) => {
     const shorten = promisify(googleUrl.shorten.bind(googleUrl));
     const { record, width, height } = req.query;
     const { admin, uploads } = getEnvironmentDependencies(environment);
-    const doc = getDoc(admin, uploads, record);
+    const docRef = getDoc(admin, uploads, record);
 
-    return doc
-      .get()
-      .catch(error => handleError(res, 500, error))
-      .then(doc => {
-        if (!doc.exists) {
-          return handleError(res, 404, 'Not Found');
-        } else {
-          const version = getVersion(doc, { width, height });
-          const admin = adminUtil(environment);
+    try {
+      const doc = await docRef.get();
 
-          return (
-            version ||
-            createNewVersion(admin, shorten, doc, { width, height }).catch(error =>
-              handleError(res, 500, error)
-            )
-          );
-        }
-      })
-      .then(version => {
+      if (!doc.exists) {
+        return handleError(res, 404, 'Not Found');
+      } else {
+        const version = getVersion(doc, { width, height });
+        const admin = adminUtil(environment);
+        const newVersion =
+          version || (await createNewVersion(admin, shorten, doc, { width, height }));
+
         res.status(200);
-        res.send(version.url);
-        return version;
-      })
-      .catch(error => {
-        console.log('error', error);
-        return Promise.reject(error);
-      });
+        res.send(newVersion.url);
+        return newVersion;
+      }
+    } catch (error) {
+      return handleError(res, 500, error);
+    }
   }
 };
 
@@ -195,7 +186,7 @@ function unlinkPromise(localFilename) {
 function getSignedUrl(file) {
   return file
     .getSignedUrl({ action: 'read', expires: `01-01-${new Date().getFullYear() + 20}` })
-    .then(([url]) => url);
+    .then(([url]) => url)
 }
 
 function saveDoc(doc, versionName, version) {

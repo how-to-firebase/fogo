@@ -31,23 +31,23 @@ describe('algoliaOnWrite', () => {
     filename: 'fake filename',
     versions: 'fake versions',
   };
-  let event;
+  let params = { id };
+  let change;
   beforeEach(() => {
-    event = { data: { id, exists: true, data: () => data } };
+    change = { after: { data: () => data } };
   });
 
   afterEach(() => client.initIndex.mockRestore());
 
   it('should call deleteObject', done => {
-    event.data.exists = false;
-    fn(event).then(result => {
+    fn({ after: { data: () => null } }, { params }).then(result => {
       expect(deleteObject).toHaveBeenCalledWith(id);
       done();
     });
   });
 
   it('should call addObject', done => {
-    fn(event).then(result => {
+    fn(change, { params }).then(result => {
       const record = Object.assign({ objectID: id }, data);
       expect(addObject).toHaveBeenCalledWith(record);
       done();
@@ -55,7 +55,7 @@ describe('algoliaOnWrite', () => {
   });
 
   it('should call setSettings exactly once', done => {
-    Promise.all([fn(event), fn(event)]).then(() => {
+    Promise.all([fn(change, { params }), fn(change, { params })]).then(() => {
       expect(setSettings.mock.calls.length).toEqual(1);
       expect(setSettings).toHaveBeenCalledWith(environment.algolia.settings);
       done();

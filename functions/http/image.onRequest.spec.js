@@ -54,7 +54,7 @@ describe('Image onRequest', () => {
   });
 
   describe('Versions', () => {
-    it('should pipe an original file', done => {
+    it.only('should pipe an original file', done => {
       req.query = { record, environment: 'test' };
       fn(req, res).then(version => {
         expect(typeof version.url).toEqual('string');

@@ -1,22 +1,32 @@
 const { adminUtil, collectionsUtil } = require('../utils');
 const exifParser = require('exif-parser');
 
-module.exports = ({ environment }) => event => {
-  const { md5Hash, name, resourceState } = event.data;
+module.exports = ({ environment }) => async data => {
+  const file = data;
+  const { md5Hash: md5WithSlashes, name, resourceState } = file;
+  const md5Hash = md5WithSlashes.replace(/\//, '|');
   const path = name.split('/');
 
   if (shouldSkip(path)) {
-    return Promise.resolve({ skipped: true });
+    return { skipped: true };
   } else {
     const admin = adminUtil(environment);
     const doc = getDoc({ admin, environment, md5Hash, path });
     const file = getFile(admin, name);
+    let result;
 
-    return resourceState == 'not_exists'
-      ? deleteFile(admin, doc)
-      : getExif(file)
-          .then(exif => getPayload(event.data, environment.env, exif, path))
-          .then(payload => doc.set(payload, { merge: true }).then(() => payload));
+    if (resourceState == 'not_exists') {
+      result = await deleteFile(admin, doc);
+    } else {
+      const exif = await getExif(file);
+      const payload = await getPayload(file, environment.env, exif, path);
+
+      await doc.set(payload, { merge: true });
+
+      result = payload;
+    }
+
+    return result;
   }
 };
 
@@ -51,11 +61,28 @@ function getExif(file) {
     return exif;
   });
 }
-function getPayload(data, env, exif, path) {
+function getPayload(file, env, exif, path) {
   const environment = path[0];
   const created = Date.now();
   const filename = path[path.length - 1];
-  const payload = Object.assign(data, env, { environment, created, filename });
+  const cleanedFile = {};
+
+  for (const key in file) {
+    const value = file[key];
+    if (typeof file[key] == 'string') {
+      cleanedFile[key] = value;
+    }
+  }
+
+  const payload = {
+    ...env,
+    environment,
+    created,
+    filename,
+    ...cleanedFile,
+    metadata: file.metadata,
+  };
+
   return mergeExif(payload, exif);
 }
 

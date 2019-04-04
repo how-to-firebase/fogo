@@ -24,4 +24,4 @@ exports.image = functions.https.onRequest(corsMiddleware(imageOnRequest({ enviro
 
 // Storage
 const { uploadsOnChange } = require('./storage');
-exports.uploadsOnChange = functions.storage.object().onChange(uploadsOnChange({ environment }));
+exports.uploadsOnChange = functions.storage.object().onFinalize(uploadsOnChange({ environment }));

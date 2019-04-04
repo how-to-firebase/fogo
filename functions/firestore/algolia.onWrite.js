@@ -2,11 +2,11 @@ const { algoliaUtil } = require('../utils');
 
 let hasSetSettings = false;
 
-module.exports = ({ environment }) => event => {
+module.exports = ({ environment }) => (change, { params }) => {
   const client = algoliaUtil(environment);
   const index = client.initIndex(environment.indexes.uploads);
-  const id = event.data.id;
-  const data = (event.data.exists && event.data.data()) || null;
+  const id = params.id;
+  const data = change.after.data();
 
   let promise = Promise.resolve();
 
@@ -14,10 +14,13 @@ module.exports = ({ environment }) => event => {
     promise = index.deleteObject(id);
   } else if (!data.isTest) {
     const { environment, filename, tags, versions } = data;
-    const record = Object.assign(
-      { objectID: id },
-      { environment, filename, tags: Object.keys(tags || {}), versions }
-    );
+    const tagsArray = Object.keys(tags || {});
+    const record = { objectID: id, environment, filename, versions };
+
+    if (tagsArray.length) {
+      record.tags = tagsArray;
+    }
+
     promise = index.addObject(record);
   }
 

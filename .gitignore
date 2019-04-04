@@ -14,3 +14,4 @@ environment.js
 bin
 
 .firebaserc
+.firebase

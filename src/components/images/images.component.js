@@ -188,7 +188,7 @@ async function evaluateLoadingPosition({ pageSize: limit, environment, images })
   const loadingBar = window.document.getElementById('loading-bar');
   const scroll = window.document.body.parentElement.scrollTop;
   const top = loadingBar.getBoundingClientRect().top;
-  const viewportHeight = window.visualViewport.height;
+  const viewportHeight = window.innerHeight;
 
   let imagesToLoad = images;
   if (top < viewportHeight) {
