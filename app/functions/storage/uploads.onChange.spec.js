@@ -24,7 +24,7 @@ describe('uploadsOnChange', () => {
   // });
 
   it('should ignore files outside an "upload" directory', done => {
-    fn({ name: 'not-uploads/test.gif', md5Hash: 'not-a-hash/but-with-a-slash' }).then(
+    fn({ name: 'not-uploads/test.gif', md5Hash: 'not+a+hash/but-with+a+slash' }).then(
       ({ skipped }) => {
         expect(skipped).toEqual(true);
         done();
@@ -34,7 +34,7 @@ describe('uploadsOnChange', () => {
 
   it('should process an upload', done => {
     const name = 'test-bypass/uploads/exif.jpg';
-    fn({ name, resourceState: 'exists', md5Hash: 'not-a-hash/but-with-a-slash' }).then(result => {
+    fn({ name, resourceState: 'exists', md5Hash: 'not+a+hash/but-with+a+slash' }).then(result => {
       expect(result.name).toEqual(name);
       expect(result.isTest).toEqual(true);
       expect(result.environment).toEqual('test-bypass');

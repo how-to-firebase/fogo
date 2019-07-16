@@ -1,0 +1,23 @@
+version: '3'
+services:
+  workspace:
+    build: ./dev/workspace
+    env_file: ./dev/workspace/env.list
+    ports:
+      - '3000:3000'
+      - '8080:8080'
+      - '41000:41000'
+    volumes:
+      - './app:/app'
+  vault:
+      container_name: vault
+      build: ./dev/vault
+      env_file: ./dev/vault/env.list
+      volumes:
+        - ./dev/vault:/dev/vault
+        - ./app/vault:/app/vault
+      ports:
+        - 8200:8200
+      cap_add:
+        - IPC_LOCK
+

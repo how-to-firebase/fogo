@@ -1,0 +1,1 @@
+vault read $VAULT_PATH -format="json" > /app/vault/secrets.json

@@ -4,7 +4,7 @@ const exifParser = require('exif-parser');
 module.exports = ({ environment }) => async data => {
   const file = data;
   const { md5Hash: md5WithSlashes, name, resourceState } = file;
-  const md5Hash = md5WithSlashes.replace(/\//, '|');
+  const md5Hash = md5WithSlashes.replace(/[+/]/g, '|');
   const path = name.split('/');
 
   if (shouldSkip(path)) {

@@ -1,104 +1,78 @@
-# fogo
+# App
 
-A live, working demo app to showcase Firebase's web features
+All app code lives in `/app`.
 
-## Install Node.js
+You can run all of the code without Docker... but it's so nice and clean to use Docker. So [install Docker](https://docs.docker.com/install/) and love your life just a little bit more.
 
-Use the [official Node.js install instructions](https://nodejs.org/en/download/) to get your
-Node on your system. Once you can run `node --version` in your command line, you're good to go.
+### Environment Variables
 
-I recommend the latest LTS version of Node.js. Even-numbered version of Node are the long-term
-support (LTS) versions. The Odd-numbered versions are the bleeding edge. I'm using v8.9.1 as of
-this writing. I'll stay on the 8.x branch until the 10.x branch ships.
+You'll need `FIREBASE_TOKEN` in your environment variables. Run `yarn ci:login` to generate the token. Then add it to `dev/workspace/env.list`. Look to `dev/workspace/env.list.dist` for the format.
 
-I use [nvs](https://github.com/jasongin/nvs) and `.node-version` files to manage Node versions.
-This matters because the tests run in `/functions` need to be run in the version of Node that
-Cloud Functions uses, and that version has historically lagged the most recent LTS version.
-See `/functions/.node-version`.
+See the later section on _Vault_ to use the included [HashiCorp Vault](https://www.vaultproject.io/) implementation to secure your secrets.
 
-## Install your package manager of choice
+# VSCode
 
-You can use either [Yarn](https://yarnpkg.com/lang/en/docs/install/) or
-[NPM](https://www.npmjs.com/get-npm). They should both work; however, I'm using yarn as of this
-writing, because I'm a hipster like that.
+This app is configured to run using [VSCode Containers](https://code.visualstudio.com/docs/remote/containers).
 
-> Run a quick check to make sure you have everything before moving on.
+Install [VSCode's Remote Development Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
 
-```bash
-yarn --version #should read out a version number
-```
+The type `cmd + shift + p` and search for `Remote-Containers: Reopen Folder in Container`. This will open the project in a _Dockerized_ development environment.
 
-## Clone the repo
+### Like Docker but not VSCode?
 
-Open your command line and `cd` to your favorite development directory. Then clone the repo:
+Try running `yarn dev` to boot up the _Dockerized_ workspace from the command line.
 
-```bash
-git clone https://github.com/how-to-firebase/fogo.git
-cd fogo
-```
+# Vault
 
-## Install dependencies
+This project is run using `docker-compose` to orchestrate the Docker containers.
 
-Node.js packages install their dependencies into `/node_modules`. This can be done with
-Yarn or NPM.
+Vault is a fantastic way to secure secrets. It's massive overkill for this particular app... but it's a nice example of an enterprise-grade secrets implementation for front-end development.
 
-```bash
-# Using Yarn
-yarn
-```
+### Service Account
 
-```bash
-# Using NPM
-npm install
-```
+- Log into the [GCP IAM console](https://console.cloud.google.com/iam-admin/serviceaccounts?authuser=2&cloudshell=true&project=chris-esplin)
+- Create a service account with the `roles/storage.objectAdmin`, a.k.a. _Storage Object Admin_ permissions
+- Create a `json` key and download it.
+- Copy your `*.json` key to `./dev/vault/service-account.json`
 
-## Edit environment files
+### Environment Variables
 
-There are two "dist" environment files, `/src/environment.js.dist` and
-`/functions/config.json.dist`.
+Copy `dev/vault/env.list.dist` and get rid of the `.dist` suffix. Fill in the values with whatever you generated from the vault.
 
-Make sure to copy each dist file without the `.dist` at the end, and edit it to match your
-development and deploy environments. For instance, you'll need to modify the Firebase details to
-point to your own target Firebase instance. You'll also need an Algolia.com account with the
-appropriate API keys, or you won't get any search.
+If you used more than one key, add them to `env.list` and edit `dev/vault/bin/unseal.sh` to provide the keys to the `vault operator unseal` function.
 
-Notice that `/src/environment.js.dist` has a `howtofirebase` environment. This is because I like to
-host multiple sites on a single Firebase instance. I built this app to run dynamically in different
-"environments" based on `location.hostname`. So you can make up as many environments as you like in
-`/src/environment.js` and assign them to hostnames as necessary. Mix and match. It's fun!
+### GCP Back End
 
-## Serve it up locally
+Edit `./dev/vault/vault.config.json` and change the `gcs` bucket to a bucket that you own and that is controlled by your `service-account.json`.
 
-This project uses package scripts from `/package.json`.
+# Docker Compose
 
-[Read the docs](https://yarnpkg.com/lang/en/docs/cli/run/) if you're fuzzy on package scripts.
+### Run All Servers
 
-Run `yarn start` and you should see something like this:
+- Run all servers with `docker-compose up`.
+- Run in daemon mode with `docker-compose up -d`.
+- Bring daemons down out with `docker-compose down`.
+- List running daemons with `docker-compose ps`.
 
-```
-Compiled successfully!
+### Run Vault
 
-You can view the application in browser.
+- Connect to a running `vault` daemon with `docker exec -it vault sh`.
+- Watch daemon logs with `docker-compose logs -f vault`.
+- Get shell access to the `vault` container with `sh bin/interactive-vault.sh`.
+- Run just Vault with `sh ./bin/run-vault.sh`.
 
-Local:            http://localhost:8080
-On Your Network:  http://192.168.1.25:8080
-```
+### Extract Secrets
 
-Now open the application up in your browser and you're live!
+Run `sh bin/vault/copy-vault-keys.sh` or `powershell bin/vault/copy-vault-keys.ps1` to extract vault keys and expand secrets to separate files within `./app/vault/`.
 
-## Deploy
+Do with these secrets files as you may.
 
-You can deploy to your own Firebase project by installing the Firebase CLI
-with `yarn global add firebase-tools` and running `firebase init`. Once Firebase is initialized to
-your own project you'll notice a new file--`/.firebaserc`--that should point to your project.
+# Deploy
 
-Run `yarn deploy` to deploy the whole app, or see the scripts listed in `/package.json` for more
-options.
+You'll need to sort out your [Cloud Build triggers](https://console.cloud.google.com/cloud-build/builds).
 
-## Questions? Bugs?
+See below for a nice example trigger configuration. It's set up to look for pushes to a `prod` branch.
 
-This app needs to be immaculate. Bulletproof. Perfect.
+Push to your `master` branch to `prod` with `git push origin master:prod`.
 
-Please file issues for questions, bug reports... anything.
-
-If in doubt, file an issue and I'll get right on it!
+![Cloud Build trigger example](https://content.screencast.com/users/ChrisEsplin/folders/Snagit/media/954f0a09-f88f-4b96-8d3d-216349bdfedc/07.13.2019-08.58.png)

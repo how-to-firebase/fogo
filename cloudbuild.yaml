@@ -1,0 +1,8 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'us.gcr.io/$PROJECT_ID/firebase-consulting:latest', '.']
+  - name: 'us.gcr.io/$PROJECT_ID/firebase-consulting:latest'
+    dir: '/app'
+    args: ['yarn', 'ci:deploy', '--token', '$_FIREBASE_TOKEN']
+images: ['us.gcr.io/$PROJECT_ID/firebase-consulting:latest']
+timeout: 3600s

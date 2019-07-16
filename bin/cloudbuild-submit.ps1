@@ -1,0 +1,1 @@
+gcloud builds submit --tag gcr.io/fir-consulting-2019/firebase-consulting .
