@@ -14,16 +14,15 @@
     "protocol": "legacy"
   },
   "dependencies": {
-    "@google-cloud/storage": "^2.4.3",
+    "@google-cloud/storage": "^3.3.1",
     "@quiver/firebase-utilities": "^0.0.5",
-    "algoliasearch": "^3.32.1",
+    "algoliasearch": "^3.35.1",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
     "exif-parser": "^0.1.12",
-    "exif-reader": "^1.0.2",
-    "fast-crc32c": "^1.0.4",
-    "firebase-admin": "~7.2.0",
-    "firebase-functions": "^2.2.1",
+    "exif-reader": "^1.0.3",
+    "firebase-admin": "~8.6.0",
+    "firebase-functions": "^3.2.0",
     "fs": "^0.0.1-security",
     "google-url": "^0.0.4",
     "path": "^0.12.7",
@@ -31,10 +30,13 @@
   },
   "private": true,
   "devDependencies": {
-    "jest": "^24.7.1",
-    "node-mocks-http": "^1.7.3"
+    "jest": "^24.9.0",
+    "node-mocks-http": "^1.8.0"
   },
   "engines": {
     "node": "8"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }

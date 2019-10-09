@@ -1,6 +1,4 @@
 const fs = require('fs');
-const path = require('path');
-const request = require('request');
 const { exec } = require('child_process');
 const { adminUtil, collectionsUtil } = require('../utils');
 
@@ -21,8 +19,7 @@ module.exports = ({ environment }) => async (req, res) => {
       } else {
         const version = getVersion(doc, { width, height });
         const admin = adminUtil(environment);
-        const newVersion =
-          version || (await createNewVersion(admin, doc, { width, height }));
+        const newVersion = version || (await createNewVersion(admin, doc, { width, height }));
 
         res.status(200);
         res.send(newVersion.url);
@@ -33,11 +30,6 @@ module.exports = ({ environment }) => async (req, res) => {
     }
   }
 };
-
-function promisify(fn) {
-  return arg =>
-    new Promise((resolve, reject) => fn(arg, (err, res) => (err ? reject(err) : resolve(res))));
-}
 
 function getError(req) {
   const { width, height } = req.query;
@@ -171,7 +163,7 @@ function unlinkPromise(localFilename) {
 function getSignedUrl(file) {
   return file
     .getSignedUrl({ action: 'read', expires: `01-01-${new Date().getFullYear() + 20}` })
-    .then(([url]) => url)
+    .then(([url]) => url);
 }
 
 function saveDoc(doc, versionName, version) {

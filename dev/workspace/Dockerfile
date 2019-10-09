@@ -1,8 +1,10 @@
 FROM ubuntu:18.04
 
+RUN echo "rerun me"
+
 RUN apt update 
 
-RUN apt install -y vim curl git-core zsh build-essential libssl-dev
+RUN apt install -y vim curl git-core zsh build-essential libssl-dev imagemagick
 
 # Install Yarn
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -

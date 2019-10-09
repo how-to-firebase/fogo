@@ -54,7 +54,7 @@ describe('Image onRequest', () => {
   });
 
   describe('Versions', () => {
-    it.only('should pipe an original file', done => {
+    it('should pipe an original file', done => {
       req.query = { record, environment: 'test' };
       fn(req, res).then(version => {
         expect(typeof version.url).toEqual('string');
@@ -73,7 +73,7 @@ describe('Image onRequest', () => {
         })
         .catch(done.fail);
     });
-    
+
     it('should resize an image by height', done => {
       req.query = { record, environment: 'test', height: 50 };
       fn(req, res)
