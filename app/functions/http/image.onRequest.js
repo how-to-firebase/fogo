@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const request = require('request');
 const { exec } = require('child_process');
-const GoogleUrl = require('google-url');
 const { adminUtil, collectionsUtil } = require('../utils');
 
 module.exports = ({ environment }) => async (req, res) => {
@@ -10,8 +9,6 @@ module.exports = ({ environment }) => async (req, res) => {
   if (error) {
     return handleError(res, 500, error);
   } else {
-    const googleUrl = new GoogleUrl({ key: environment.apiKeys.googleUrlShortener });
-    const shorten = promisify(googleUrl.shorten.bind(googleUrl));
     const { record, width, height } = req.query;
     const { admin, uploads } = getEnvironmentDependencies(environment);
     const docRef = getDoc(admin, uploads, record);
@@ -25,7 +22,7 @@ module.exports = ({ environment }) => async (req, res) => {
         const version = getVersion(doc, { width, height });
         const admin = adminUtil(environment);
         const newVersion =
-          version || (await createNewVersion(admin, shorten, doc, { width, height }));
+          version || (await createNewVersion(admin, doc, { width, height }));
 
         res.status(200);
         res.send(newVersion.url);
@@ -84,7 +81,7 @@ function getVersion(doc, { width, height }) {
   return versions && versions[versionName];
 }
 
-function createNewVersion(admin, shorten, doc, { width, height }) {
+function createNewVersion(admin, doc, { width, height }) {
   const versionName = getVersionName({ width, height });
   const filename = getFilename(doc);
   const file = getFile(admin, filename);
@@ -98,18 +95,6 @@ function createNewVersion(admin, shorten, doc, { width, height }) {
       }
     })
     .then(file => getSignedUrl(file).then(url => ({ url, name: file.name })))
-    .then(({ url, name }) => {
-      return shorten(url)
-        .catch(error => {
-          console.log('GoogleUrl error', error);
-          return null;
-        })
-        .then(shortUrl => ({
-          url,
-          name,
-          shortUrl,
-        }));
-    })
     .then(version => saveDoc(doc, versionName, version));
 }
 
