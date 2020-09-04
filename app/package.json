@@ -40,7 +40,7 @@
     "@reactivex/rxjs": "^5.5.3",
     "axios": "^0.18.0",
     "linkstate": "^1.1.0",
-    "node-sass": "^4.11.0",
+    "node-sass": "^4.13.1",
     "preact": "^8.4.2",
     "preact-cli-plugin-async": "^2.0.0",
     "preact-compat": "^3.18.4",
